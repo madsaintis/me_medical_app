@@ -29,7 +29,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     TheUser user = Provider.of<TheUser>(context);
     return Scaffold(
         appBar: AppBar(
-          title: Text("Edit Profile"),
+          centerTitle: true,
+          title: Text("Personal Information"),
           backgroundColor: Colors.teal,
           elevation: 3,
           leading: IconButton(
@@ -173,7 +174,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           },
                           style:
                               ElevatedButton.styleFrom(primary: Colors.amber))),
-                  /*SizedBox(
+                  SizedBox(
                     height: 25.0,
                   ),
                   Text(
@@ -251,7 +252,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
                           },
                           style:
-                              ElevatedButton.styleFrom(primary: Colors.green)))*/
+                              ElevatedButton.styleFrom(primary: Colors.green)))
                 ]))));
   }
 }

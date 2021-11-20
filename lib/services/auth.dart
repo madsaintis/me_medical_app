@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:me_medical_app/models/user.dart';
+import 'package:me_medical_app/services/database.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -15,7 +15,6 @@ class AuthService {
     return _auth.authStateChanges().map((User? user) => _userFirebase(user!));
   }
 
-  //sign in anynimous
   //sign in anonymously
   Future signInAnon() async {
     try {
@@ -26,18 +25,72 @@ class AuthService {
       print(e.toString());
       return null;
     }
-    //sign in with email & password
+  }
 
-    // register with email & password
-
-    // sign out
-    Future signOut() async {
-      try {
-        return await _auth.signOut();
-      } catch (e) {
-        print(e.toString());
-        return null;
-      }
+  //sign in with email & password
+  Future logIn(String email, String password) async {
+    try {
+      UserCredential result = await _auth.signInWithEmailAndPassword(
+          email: email, password: password);
+      User? user = result.user;
+      return _userFirebase(user!);
+    } catch (e) {
+      print(e.toString());
+      return null;
     }
+  }
+
+  // register with email & password
+  Future register(
+      String name, String phone, String email, String password) async {
+    try {
+      UserCredential result = await _auth.createUserWithEmailAndPassword(
+          email: email, password: password);
+      User? user = result.user;
+
+      //Create a new document for the new user with the uid
+      await DatabaseService(uid: user!.uid)
+          .updateUserData(name, phone, email, password, '');
+      return _userFirebase(user);
+    } catch (e) {
+      print(e.toString());
+      return null;
+    }
+  }
+
+  //edit profile
+  Future editProfile(
+      String name, String phone, String email, String location) async {
+    try {
+      User? user = _auth.currentUser;
+
+      //Create a new document for the new user with the uid
+      await DatabaseService(uid: user!.uid)
+          .updateProfile(name, phone, email, location);
+      return _userFirebase(user);
+    } catch (e) {
+      print(e.toString());
+      return null;
+    }
+  }
+
+  // sign out
+  Future signOut() async {
+    try {
+      return await _auth.signOut();
+    } catch (e) {
+      print(e.toString());
+      return null;
+    }
+  }
+
+  //get current UID
+  Future<String> getCurrentUID() async {
+    return await _auth.currentUser!.uid;
+  }
+
+  //get current user
+  Future getCurrentUser() async {
+    return await _auth.currentUser;
   }
 }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:me_medical_app/register.dart';
+import 'package:me_medical_app/sign_in.dart';
 
 class Authenticate extends StatefulWidget {
   @override
@@ -6,8 +8,18 @@ class Authenticate extends StatefulWidget {
 }
 
 class _AuthenticateState extends State<Authenticate> {
+  bool showSignIn = true;
+
+  void toggleView() {
+    setState(() => showSignIn = !showSignIn);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(child: Text("Log in"));
+    if (showSignIn) {
+      return SignIn(toggleView: toggleView);
+    } else {
+      return Register(toggleView: toggleView);
+    }
   }
 }

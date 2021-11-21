@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:me_medical_app/register.dart';
-import 'package:me_medical_app/sign_in.dart';
 
 class Authenticate extends StatefulWidget {
   @override

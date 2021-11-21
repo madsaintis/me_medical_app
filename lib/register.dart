@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:me_medical_app/services/auth.dart';
 
@@ -27,7 +29,7 @@ class _RegisterState extends State<Register> {
         appBar: AppBar(
           title: Text("Registration Page"),
           backgroundColor: Colors.teal,
-          elevation: 3,
+          elevation: 0,
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back,

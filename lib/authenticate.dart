@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:me_medical_app/login_page.dart';
 import 'package:me_medical_app/register.dart';
 
+// ignore: use_key_in_widget_constructors
 class Authenticate extends StatefulWidget {
   @override
   _AuthenticateState createState() => _AuthenticateState();

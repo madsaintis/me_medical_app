@@ -1,19 +1,17 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:me_medical_app/dashboard.dart';
-import 'package:me_medical_app/models/user.dart';
-import 'package:me_medical_app/services/auth.dart';
-import 'package:me_medical_app/services/database.dart';
-import 'package:provider/provider.dart';
 
+// ignore: use_key_in_widget_constructors
 class EditProfilePage extends StatefulWidget {
   @override
   _EditProfilePageState createState() => _EditProfilePageState();
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
-  final AuthService _auth = AuthService();
+  //final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
-  final _formKey2 = GlobalKey<FormState>();
 
   String name = '';
   String phone = '';
@@ -26,10 +24,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    TheUser user = Provider.of<TheUser>(context);
     return Scaffold(
         appBar: AppBar(
-          title: Text("Edit Profile"),
+          centerTitle: true,
+          title: Text("Personal Information"),
           backgroundColor: Colors.teal,
           elevation: 3,
           leading: IconButton(
@@ -160,7 +158,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       child: ElevatedButton(
                           child: Text("Change Information"),
                           onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
+                            /*if (_formKey.currentState!.validate()) {
                               print(name);
                               setState(() => error = 'Changed successfully');
                               dynamic result = await _auth.editProfile(
@@ -169,11 +167,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               if (result == null) {
                                 setState(() => error = 'Invalid inputs');
                               }
-                            }
+                            }*/
                           },
                           style:
                               ElevatedButton.styleFrom(primary: Colors.amber))),
-                  /*SizedBox(
+                  SizedBox(
                     height: 25.0,
                   ),
                   Text(
@@ -247,11 +245,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   Center(
                       child: ElevatedButton(
                           child: Text("Change Password"),
-                          onPressed: () {
-
-                          },
+                          onPressed: () {},
                           style:
-                              ElevatedButton.styleFrom(primary: Colors.green)))*/
+                              ElevatedButton.styleFrom(primary: Colors.green)))
                 ]))));
   }
 }

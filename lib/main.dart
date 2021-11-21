@@ -1,12 +1,10 @@
+// ignore_for_file: use_key_in_widget_constructors
+
 import 'package:flutter/material.dart';
-import 'package:me_medical_app/login_page.dart';
 import 'package:me_medical_app/models/user.dart';
-import 'package:me_medical_app/register.dart';
 import 'package:me_medical_app/services/auth.dart';
-import 'package:me_medical_app/sign_in.dart';
 import 'package:me_medical_app/wrapper.dart';
 import 'package:provider/provider.dart';
-import 'edit_profile.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
@@ -24,7 +22,7 @@ class MyApp extends StatelessWidget {
       value: AuthService().user,
       child: MaterialApp(
         title: 'Flutter Firebase',
-        home: SignIn2(),
+        home: Wrapper(),
       ),
     );
   }

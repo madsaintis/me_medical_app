@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:me_medical_app/models/user.dart';
 
 class DatabaseService {
@@ -10,6 +9,9 @@ class DatabaseService {
   final CollectionReference userCollection =
       FirebaseFirestore.instance.collection('users');
 
+  final CollectionReference itemCollection =
+      FirebaseFirestore.instance.collection('items');
+
   Future updateUserData(String name, String phone, String email,
       String password, String location) async {
     return await userCollection.doc(uid).set({
@@ -17,14 +19,27 @@ class DatabaseService {
       'Phone': phone,
       'Email': email,
       'Password': password,
-      'Clinic Location': location
+      'Clinic Location': location,
+      'User ID': uid
+    });
+  }
+
+  //update item
+  Future updateItemInventory(
+      String itemName, String buyPrice, String sellPrice, String stock) async {
+    return await itemCollection.doc(uid).set({
+      'Item Name': itemName,
+      'Buy Price': buyPrice,
+      'Sell Price': sellPrice,
+      'In Stock': stock,
+      'User ID': uid,
     });
   }
 
   //update profile
   Future updateProfile(
       String name, String phone, String email, String location) async {
-    return await userCollection.doc(uid).set({
+    return await userCollection.doc(uid).update({
       'Name': name,
       'Phone': phone,
       'Email': email,

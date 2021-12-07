@@ -136,8 +136,6 @@ class _SignInState extends State<SignIn> {
                             if (result == null) {
                               setState(() => error = 'Wrong credentials');
                             }
-                            print(email);
-                            print(password);
                           }
                         }),
                     SizedBox(height: 20.0),

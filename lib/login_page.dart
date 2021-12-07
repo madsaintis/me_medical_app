@@ -28,7 +28,7 @@ class _SignInState extends State<SignIn> {
       autofocus: false,
       onChanged: (val) {},
       decoration: InputDecoration(
-          hintText: 'Username',
+          hintText: 'Email',
           contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(32),

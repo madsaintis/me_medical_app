@@ -84,8 +84,24 @@ class AuthService {
     }
   }
 
+  //add item
+  Future addItem(String itemName, String buyPrice, String sellPrice,
+      String inStock) async {
+    try {
+      final User? user = _auth.currentUser;
+
+      //Create a new document for the new user with the uid
+      await DatabaseService(uid: user!.uid)
+          .updateItemInventory(itemName, buyPrice, sellPrice, inStock);
+      return _userFirebase(user);
+    } catch (e) {
+      print(e.toString());
+      return null;
+    }
+  }
+
   //get current UID
-  Future<String> getCurrentUID() async {
+  String getCurrentUID() {
     return _auth.currentUser!.uid;
   }
 

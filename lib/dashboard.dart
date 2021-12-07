@@ -3,6 +3,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:me_medical_app/edit_profile.dart';
+import 'package:me_medical_app/inventory.dart';
 import 'package:me_medical_app/services/auth.dart';
 import 'package:me_medical_app/wrapper.dart';
 
@@ -82,7 +83,10 @@ class Dashboard extends StatelessWidget {
                 backgroundColor: Colors.teal,
               ),
               //later implement the jump page function
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => InventoryPage()));
+              },
             ),
             SizedBox(
               height: 20.0,

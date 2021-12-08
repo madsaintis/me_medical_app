@@ -27,7 +27,7 @@ class DatabaseService {
   //update item
   Future updateItemInventory(
       String itemName, String buyPrice, String sellPrice, String stock) async {
-    return await itemCollection.doc(uid).set({
+    return await itemCollection.doc(uid).collection('itemInfo').add({
       'Item Name': itemName,
       'Buy Price': buyPrice,
       'Sell Price': sellPrice,
@@ -57,6 +57,15 @@ class DatabaseService {
       location: snapshot['Location'],
       password: snapshot['Password'],
     );
+  }
+
+  //delete item
+  Future deleteItem(String itemID) async {
+    return await itemCollection
+        .doc(uid)
+        .collection('itemInfo')
+        .doc(itemID)
+        .delete();
   }
 
   //get user data

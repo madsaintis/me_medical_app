@@ -36,6 +36,20 @@ class DatabaseService {
     });
   }
 
+  //update user's patient list    !! FIX THIS !!
+  Future updatePatientInventory(
+      String PatientName, String IC, String BOD, String Gender,String ContactNumber,String address) async {
+    return await itemCollection.doc(uid).collection('itemInfo').add({
+      'Patient Name': PatientName,
+      'IC': IC,
+      'BOD': BOD,
+      'Gender': Gender,
+      'ContactNumber': ContactNumber,
+      'address':address,
+      'User ID':uid,
+    });
+  }
+  
   //update profile
   Future updateProfile(
       String name, String phone, String email, String location) async {

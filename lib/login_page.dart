@@ -74,7 +74,7 @@ class _SignInState extends State<SignIn> {
                     TextFormField(
                       validator: (String? val) {
                         if (val != null && val.isEmpty) {
-                          return "Please fill username field";
+                          return "Please fill email field";
                         }
                         return null;
                       },

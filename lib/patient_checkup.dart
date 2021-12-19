@@ -1,23 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
+import 'package:me_medical_app/dashboard.dart';
 
 class Quantity extends StatefulWidget {
   CartItem? cartItem;
@@ -109,15 +92,6 @@ class _PizzaState extends State<Pizza> {
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, this.title}) : super(key: key);
-
-  final String? title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
 class CartItem {
   String? productType;
   String? itemName;
@@ -159,7 +133,15 @@ class _CartWidgetState extends State<CartWidget> {
   }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class PatientCheckUp extends StatefulWidget {
+  PatientCheckUp({Key? key, this.title}) : super(key: key);
+  final String? title;
+
+  @override
+  _PatientCheckUpState createState() => _PatientCheckUpState();
+}
+
+class _PatientCheckUpState extends State<PatientCheckUp> {
   List<CartItem> cart = [];
 
   void refresh() {
@@ -170,7 +152,18 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title!),
+        centerTitle: true,
+        title: Text("Patient Checkup"),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => Dashboard()));
+          },
+        ),
       ),
       body: Center(
         child: Column(

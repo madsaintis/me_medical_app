@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:me_medical_app/inventory.dart';
 import 'package:me_medical_app/services/auth.dart';
+import 'package:flutter/services.dart';
 
 // ignore: use_key_in_widget_constructors
 class AddItemPage extends StatefulWidget {
@@ -37,12 +38,6 @@ class _AddItemPageState extends State<AddItemPage> {
                   MaterialPageRoute(builder: (context) => InventoryPage()));
             },
           ),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.check),
-              onPressed: () {},
-            ),
-          ],
         ),
         body: Container(
             padding: EdgeInsets.only(
@@ -75,6 +70,11 @@ class _AddItemPageState extends State<AddItemPage> {
                     height: 15.0,
                   ),
                   TextFormField(
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d+\.?\d{0,2}'))
+                    ],
+                    keyboardType: TextInputType.number,
                     validator: (String? val) {
                       if (val != null && val.isEmpty) {
                         return "Buy price field can't be empty";
@@ -99,6 +99,17 @@ class _AddItemPageState extends State<AddItemPage> {
                     height: 15.0,
                   ),
                   TextFormField(
+                    validator: (String? val) {
+                      if (val != null && val.isEmpty) {
+                        return "Sell price field can't be empty";
+                      }
+                      return null;
+                    },
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d+\.?\d{0,2}'))
+                    ],
+                    keyboardType: TextInputType.number,
                     onChanged: (val) {
                       setState(() => sellPrice = val);
                     },
@@ -119,10 +130,12 @@ class _AddItemPageState extends State<AddItemPage> {
                   TextFormField(
                     validator: (String? val) {
                       if (val != null && val.isEmpty) {
-                        return "Name field can't be empty";
+                        return "Item stock field can't be empty";
                       }
                       return null;
                     },
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    keyboardType: TextInputType.number,
                     onChanged: (val) {
                       setState(() => inStock = val);
                     },
@@ -147,11 +160,11 @@ class _AddItemPageState extends State<AddItemPage> {
                             if (_formKey.currentState!.validate()) {
                               _auth.addItem(
                                   itemName, buyPrice, sellPrice, inStock);
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => InventoryPage()));
                             }
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => InventoryPage()));
                           },
                           style:
                               ElevatedButton.styleFrom(primary: Colors.amber))),

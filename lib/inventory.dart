@@ -14,8 +14,6 @@ class InventoryPage extends StatefulWidget {
 }
 
 class _InventoryPageState extends State<InventoryPage> {
-  navigateToDetail(DocumentSnapshot details, String id) {}
-
   Future getPosts() async {
     var firestore = FirebaseFirestore.instance;
 
@@ -59,14 +57,30 @@ class _InventoryPageState extends State<InventoryPage> {
                 return ListView.builder(
                     itemCount: snapshot.data!.length,
                     itemBuilder: (_, index) {
-                      return ListTile(
-                          title: Text(snapshot.data[index].data()["Item Name"]),
-                          onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ItemDetailPage(
-                                        itemInfo: snapshot.data[index],
-                                      ))));
+                      if (snapshot.data!.length == 0) {
+                        return Center(
+                          child: Text("Your inventory is empty :("),
+                        );
+                      }
+                      return Container(
+                        child: ListTile(
+                            title:
+                                Text(snapshot.data[index].data()["Item Name"]),
+                            trailing: Wrap(
+                              children: [
+                                Text("In Stock: " +
+                                    snapshot.data[index].data()["In Stock"])
+                              ],
+                            ),
+                            onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ItemDetailPage(
+                                          itemInfo: snapshot.data[index],
+                                        )))),
+                        decoration:
+                            BoxDecoration(border: Border(bottom: BorderSide())),
+                      );
                     });
               }
             }),
@@ -125,7 +139,6 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
               onPressed: () async {
                 await DatabaseService(uid: AuthService().getCurrentUID())
                     .deleteItem(widget.itemInfo!.id);
-                print(widget.itemInfo!.id);
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => InventoryPage()));
               },

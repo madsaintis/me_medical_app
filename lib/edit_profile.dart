@@ -16,8 +16,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
 
   String name = '';
-  String phone = '';
   String email = '';
+  String phone = '';
   String location = '';
   String password = '';
   String newpassword = '';
@@ -66,6 +66,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
               children: snapshot.data!.docs.map((DocumentSnapshot document) {
                 Map<String, dynamic> data =
                     document.data()! as Map<String, dynamic>;
+                name = data['Name'];
+                print(name);
+                email = data['Email'];
+                phone = data['Phone'];
+                location = data['Clinic Location'];
+
                 return Form(
                     key: _formKey,
                     child: Column(children: <Widget>[
@@ -78,6 +84,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         height: 15.0,
                       ),
                       TextFormField(
+                        initialValue: data['Name'],
                         key: Key(data['Name'].toString()),
                         onChanged: (val) {
                           setState(() => name = val);
@@ -88,7 +95,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           }
                           return null;
                         },
-                        initialValue: data['Name'],
                         decoration: InputDecoration(
                             labelText: "Full Name ",
                             floatingLabelBehavior: FloatingLabelBehavior.always,

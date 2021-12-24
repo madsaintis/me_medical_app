@@ -1,7 +1,9 @@
 // ignore_for_file: prefer_const_constructors
 import 'package:flutter/material.dart';
 import 'package:me_medical_app/inventory.dart';
+import 'package:me_medical_app/patient_checkup.dart';
 import 'package:me_medical_app/services/auth.dart';
+import 'package:intl/intl.dart';
 
 // ignore: use_key_in_widget_constructors
 class AddPatientPage extends StatefulWidget {
@@ -10,36 +12,38 @@ class AddPatientPage extends StatefulWidget {
 }
 
 class _AddPatientPageState extends State<AddPatientPage> {
+  TextEditingController _textEditingController = TextEditingController();
+  TextEditingController _textEditingController2 = TextEditingController();
   final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
 
   String PatientName = '';
   String IC = '';
-  String BOD='';
-  DateTime date=DateTime.now();
+  String BOD = '';
+  DateTime date = DateTime.now();
   String Gender = '';
   String ContactNumber = '';
   String Address = '';
 
-  Future pickDate() async{
-    final initialDate=DateTime.now();
-    final newDate=await showDatePicker(
+  Future pickDate() async {
+    final initialDate = DateTime.now();
+    final newDate = await showDatePicker(
         context: context,
         initialDate: initialDate,
-        firstDate: DateTime (DateTime.now().year-100), lastDate: DateTime(DateTime.now().year)
-    );
-    if(newDate==null) return;
-    setState(()=>date=newDate);
+        firstDate: DateTime(DateTime.now().year - 100),
+        lastDate: DateTime.now());
+    if (newDate == null) return;
+    setState(() => date = newDate);
   }
 
-    String getText(){
-    if(date==null){
+  String getText() {
+    if (date == null) {
       return 'Select Date';
-    }
-    else{
+    } else {
       return '&{date.month}/&{date.day}/${date.year}';
     }
-    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,17 +58,12 @@ class _AddPatientPageState extends State<AddPatientPage> {
               color: Colors.white,
             ),
             onPressed: () {
-              Navigator.push(context,
+              Navigator.push(
+                  context,
                   //should jump to the main patient page...
-                  MaterialPageRoute(builder: (context) => InventoryPage()));
+                  MaterialPageRoute(builder: (context) => PatientCheckUp()));
             },
           ),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.check),
-              onPressed: () {},
-            ),
-          ],
         ),
         body: Container(
             padding: EdgeInsets.only(
@@ -78,7 +77,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
                     },
                     validator: (String? val) {
                       if (val != null && val.isEmpty) {
-                        return "Item name field can't be empty";
+                        return "Name field can't be empty";
                       }
                       return null;
                     },
@@ -99,7 +98,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
                   TextFormField(
                     validator: (String? val) {
                       if (val != null && val.isEmpty) {
-                        return "Buy price field can't be empty";
+                        return "Patient ID field can't be empty";
                       }
                       return null;
                     },
@@ -107,7 +106,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
                       setState(() => IC = val);
                     },
                     decoration: InputDecoration(
-                        labelText: "IC",
+                        labelText: "Patient ID",
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                         labelStyle: TextStyle(
                             fontSize: 20,
@@ -121,11 +120,18 @@ class _AddPatientPageState extends State<AddPatientPage> {
                     height: 15.0,
                   ),
                   TextFormField(
+                    controller: _textEditingController,
+                    validator: (String? val) {
+                      if (val != null && val.isEmpty) {
+                        return "Name field can't be empty";
+                      }
+                      return null;
+                    },
                     onChanged: (val) {
                       setState(() => BOD = val);
                     },
                     decoration: InputDecoration(
-                        labelText: "BOD",
+                        labelText: "Birth Date",
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                         labelStyle: TextStyle(
                             fontSize: 20,
@@ -134,15 +140,21 @@ class _AddPatientPageState extends State<AddPatientPage> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         )),
-                    onTap:(){
-                      pickDate();
-                      BOD=getText();
-                    } ,
+                    onTap: () async {
+                      FocusScope.of(context).requestFocus(FocusNode());
+                      // Show Date Picker Here
+                      await pickDate();
+
+                      _textEditingController.text =
+                          DateFormat('yyyy/MM/dd').format(date);
+                      BOD = DateFormat('yyyy/MM/dd').format(date).toString();
+                    },
                   ),
                   SizedBox(
                     height: 15.0,
                   ),
                   TextFormField(
+                    controller: _textEditingController2,
                     validator: (String? val) {
                       if (val != null && val.isEmpty) {
                         return "Name field can't be empty";
@@ -161,31 +173,35 @@ class _AddPatientPageState extends State<AddPatientPage> {
                             color: Colors.blue[200]),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                        )
-                    ),
-                    onTap: (){
-                      showBottomSheet(context: context, builder:(BuildContext context){
-                        return Column(mainAxisSize:MainAxisSize.min,
-                        children:<Widget>[
-                          ListTile(
-                          title:Text("man"),
-                          onTap: () {
-                            setState(() {
-                              Gender = "man";
-                              Navigator.pop(context);
-                            });
-                          }),
-                          ListTile(
-                              title:Text("women"),
-                              onTap: () {
-                                setState(() {
-                                  Gender = "women";
-                                  Navigator.pop(context);
-                                });
-                              })
-                        ]
-                        );
-                      });
+                        )),
+                    onTap: () {
+                      showModalBottomSheet(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  ListTile(
+                                      title: Text("Male"),
+                                      onTap: () {
+                                        setState(() {
+                                          Gender = "Male";
+                                          Navigator.pop(context);
+                                          _textEditingController2.text = Gender;
+                                        });
+                                      }),
+                                  ListTile(
+                                      title: Text("Female"),
+                                      onTap: () {
+                                        setState(() {
+                                          Gender = "Female";
+                                          Navigator.pop(context);
+                                          _textEditingController2.text = Gender;
+                                        });
+                                      })
+                                ]);
+                          });
+                      FocusScope.of(context).requestFocus(new FocusNode());
                     },
                   ),
                   SizedBox(
@@ -194,7 +210,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
                   TextFormField(
                     validator: (String? val) {
                       if (val != null && val.isEmpty) {
-                        return "Name field can't be empty";
+                        return "Contact number field can't be empty";
                       }
                       return null;
                     },
@@ -202,7 +218,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
                       setState(() => ContactNumber = val);
                     },
                     decoration: InputDecoration(
-                        labelText: "ContactNumber",
+                        labelText: "Contact Number",
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                         labelStyle: TextStyle(
                             fontSize: 20,
@@ -218,7 +234,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
                   TextFormField(
                     validator: (String? val) {
                       if (val != null && val.isEmpty) {
-                        return "Name field can't be empty";
+                        return "Address field can't be empty";
                       }
                       return null;
                     },
@@ -244,17 +260,18 @@ class _AddPatientPageState extends State<AddPatientPage> {
                           child: Text("Add Patient"),
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              _auth.addPatient(
-                                  PatientName,IC,BOD,Gender,ContactNumber,Address);
+                              _auth.addPatient(PatientName, IC, BOD, Gender,
+                                  ContactNumber, Address);
+
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      //this need to change later
+                                      builder: (context) => PatientCheckUp()));
                             }
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                //this need to change later
-                                    builder: (context) => InventoryPage()));
                           },
                           style:
-                          ElevatedButton.styleFrom(primary: Colors.amber))),
+                              ElevatedButton.styleFrom(primary: Colors.amber))),
                   SizedBox(
                     height: 25.0,
                   ),

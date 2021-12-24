@@ -69,7 +69,9 @@ class _InventoryPageState extends State<InventoryPage> {
                             trailing: Wrap(
                               children: [
                                 Text("In Stock: " +
-                                    snapshot.data[index].data()["In Stock"])
+                                    snapshot.data[index]
+                                        .data()["In Stock"]
+                                        .toString())
                               ],
                             ),
                             onTap: () => Navigator.push(
@@ -221,7 +223,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                     height: 15.0,
                   ),
                   TextFormField(
-                    initialValue: widget.itemInfo!['In Stock'],
+                    initialValue: widget.itemInfo!['In Stock'].toString(),
                     validator: (String? val) {
                       if (val != null && val.isEmpty) {
                         return "Name field can't be empty";

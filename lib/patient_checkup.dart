@@ -1,6 +1,195 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/cupertino.dart';
+import 'package:me_medical_app/add_patient.dart';
+
+import 'package:me_medical_app/services/auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:me_medical_app/dashboard.dart';
+import 'package:me_medical_app/services/database.dart';
+
+// ignore: use_key_in_widget_constructors
+class PatientCheckUp extends StatefulWidget {
+  @override
+  PatientCheckUpState createState() => PatientCheckUpState();
+}
+
+class PatientCheckUpState extends State<PatientCheckUp> {
+  List<DropdownMenuItem> items = [];
+  void refresh() {
+    setState(() {});
+  }
+
+  Future getPosts() async {
+    var firestore = FirebaseFirestore.instance;
+
+    QuerySnapshot qn = await firestore
+        .collection("items")
+        .doc(AuthService().getCurrentUID())
+        .collection('itemInfo')
+        .get();
+
+    return qn.docs;
+  }
+
+  List<CartItem>? cart = [];
+  String? value = "Not Available";
+
+  final db = FirebaseFirestore.instance;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text("Medical Check Up"),
+          backgroundColor: Colors.teal,
+          elevation: 3,
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => Dashboard()));
+            },
+          ),
+        ),
+        body: Container(
+          padding: EdgeInsets.all(5),
+          child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('items')
+                  .doc(AuthService().getCurrentUID())
+                  .collection('itemInfo')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData)
+                  return Center(
+                    child: CupertinoActivityIndicator(),
+                  );
+                else {
+                  if (snapshot.data!.size == 0) {
+                    items.add(DropdownMenuItem(
+                      child: Text(
+                        'Your inventory is empty',
+                        style: TextStyle(color: Color(0xff11b719)),
+                      ),
+                      value: "-",
+                    ));
+                  } else {
+                    if (items.length == 0) {
+                      for (int i = 0; i < snapshot.data!.docs.length; i++) {
+                        DocumentSnapshot snap = snapshot.data!.docs[i];
+                        items.add(
+                          DropdownMenuItem(
+                            child: Text(
+                              snap['Item Name'],
+                              style: TextStyle(color: Color(0xff11b719)),
+                            ),
+                            value: "${snap.id}",
+                          ),
+                        );
+                      }
+                    }
+                  }
+                  return Container(
+                    padding: EdgeInsets.only(bottom: 16.0),
+                    child: Row(
+                      children: <Widget>[
+                        /*Expanded(
+                        flex: 4,
+                        child: DropdownButton<dynamic>(
+                          isDense: true,
+                          onChanged: (valueSelectedByUser) {
+                            setState(() {
+                              value = valueSelectedByUser as String?;
+                            });
+                          },
+                          hint: Text('Choose a patient'),
+                          items: items,
+                        ),
+                      ),*/
+                        TextButton.icon(
+                          icon: Icon(Icons.list_alt),
+                          label: Text('Print',
+                              style: TextStyle(color: Colors.white)),
+                          style: TextButton.styleFrom(
+                            primary: Colors.white,
+                            backgroundColor: Colors.teal,
+                          ),
+                          //later implement the jump page function
+                          onPressed: () async {
+                            print(value);
+                            print(items.length);
+                            await DatabaseService(
+                                    uid: AuthService().getCurrentUID())
+                                .updateStock(value, int.parse("3"));
+                          },
+                        ),
+                        Expanded(
+                          child: ListView.builder(
+                              key: UniqueKey(),
+                              itemCount: cart!.length,
+                              itemBuilder: (BuildContext ctxt, int index) {
+                                return CartWidget(
+                                    cart: cart,
+                                    index: index,
+                                    callback: refresh,
+                                    items: items);
+                              }),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                cart!.add(CartItem(itemName: "", quantity: ""));
+                                setState(() {});
+                              },
+                              child: Text("add Pizza"),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                for (int i = 0; i < cart!.length; i++) {
+                                  print(cart![i].itemName);
+                                  print(cart![i].quantity);
+                                }
+                              },
+                              child: Text("Print Pizza"),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  );
+                }
+              }),
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+            elevation: 0.0,
+            label: Text('Add Patient'),
+            icon: Icon(Icons.add),
+            backgroundColor: Color(0xFFE57373),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => AddPatientPage()));
+            }));
+  }
+}
+
+/*
+floatingActionButton: FloatingActionButton.extended(
+            elevation: 0.0,
+            label: Text('Add Item'),
+            icon: Icon(Icons.add),
+            backgroundColor: Color(0xFFE57373),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => AddItemPage()));
+            })
+*/
 
 class Quantity extends StatefulWidget {
   CartItem? cartItem;
@@ -11,7 +200,7 @@ class Quantity extends StatefulWidget {
 }
 
 class _QuantityState extends State<Quantity> {
-  String? _value = "Flavor 1";
+  String? _value = "";
 
   @override
   void initState() {
@@ -32,7 +221,6 @@ class _QuantityState extends State<Quantity> {
     return Container(
       child: TextFormField(onChanged: (String? value) {
         setState(() {
-          _value = value;
           widget.cartItem!.quantity = value as String?;
         });
       }),
@@ -41,51 +229,39 @@ class _QuantityState extends State<Quantity> {
 }
 
 class Pizza extends StatefulWidget {
+  List<DropdownMenuItem> items = [];
+
   CartItem? cartItem;
 
-  Pizza({this.cartItem});
+  Pizza({this.cartItem, required this.items});
   @override
   _PizzaState createState() => _PizzaState();
 }
 
 class _PizzaState extends State<Pizza> {
-  String? _value = "";
+  String? _value;
+  List<DropdownMenuItem> itemsList = [];
 
   @override
   void initState() {
     super.initState();
-    _value = widget.cartItem!.itemName!;
   }
 
   @override
   void didUpdateWidget(Pizza oldWidget) {
-    if (oldWidget.cartItem!.itemName != widget.cartItem!.itemName) {
-      _value = widget.cartItem!.itemName!;
-    }
-    super.didUpdateWidget(oldWidget);
+    if (oldWidget.cartItem!.itemName != widget.cartItem!.itemName)
+      super.didUpdateWidget(oldWidget);
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: DropdownButton(
+      child: DropdownButton<dynamic>(
           value: _value,
-          items: [
-            DropdownMenuItem(
-              child: Text("Pizza 1"),
-              value: "Pizza 1",
-            ),
-            DropdownMenuItem(
-              child: Text("Pizza 2"),
-              value: "Pizza 2",
-            ),
-            DropdownMenuItem(child: Text("Pizza 3"), value: "Pizza 3"),
-            DropdownMenuItem(child: Text("Pizza 4"), value: "Pizza 4")
-          ],
-          onChanged: (String? value) {
+          items: widget.items,
+          onChanged: (value) {
             setState(() {
-              _value = value;
-              widget.cartItem!.itemName = value as String?;
+              widget.cartItem!.itemName = value;
             });
           }),
     );
@@ -93,18 +269,18 @@ class _PizzaState extends State<Pizza> {
 }
 
 class CartItem {
-  String? productType;
   String? itemName;
   String? quantity;
-  CartItem({this.productType, this.itemName, this.quantity});
+  CartItem({this.itemName, this.quantity});
 }
 
 class CartWidget extends StatefulWidget {
+  List<DropdownMenuItem> items;
   List<CartItem>? cart;
   int? index;
   VoidCallback? callback;
 
-  CartWidget({this.cart, this.index, this.callback});
+  CartWidget({this.cart, this.index, this.callback, required this.items});
   @override
   _CartWidgetState createState() => _CartWidgetState();
 }
@@ -114,7 +290,9 @@ class _CartWidgetState extends State<CartWidget> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: Pizza(cartItem: widget.cart![widget.index!])),
+        Expanded(
+            child: Pizza(
+                cartItem: widget.cart![widget.index!], items: widget.items)),
         Expanded(child: Quantity(cartItem: widget.cart![widget.index!])),
         Expanded(
           child: IconButton(
@@ -129,82 +307,6 @@ class _CartWidgetState extends State<CartWidget> {
           ),
         )
       ],
-    );
-  }
-}
-
-class PatientCheckUp extends StatefulWidget {
-  PatientCheckUp({Key? key, this.title}) : super(key: key);
-  final String? title;
-
-  @override
-  _PatientCheckUpState createState() => _PatientCheckUpState();
-}
-
-class _PatientCheckUpState extends State<PatientCheckUp> {
-  List<CartItem> cart = [];
-
-  void refresh() {
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text("Patient Checkup"),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Colors.white,
-          ),
-          onPressed: () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => Dashboard()));
-          },
-        ),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Expanded(
-              child: ListView.builder(
-                  key: UniqueKey(),
-                  itemCount: cart.length,
-                  itemBuilder: (BuildContext ctxt, int index) {
-                    return CartWidget(
-                        cart: cart, index: index, callback: refresh);
-                  }),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    cart.add(CartItem(
-                        productType: "pizza",
-                        itemName: "Pizza 1",
-                        quantity: "Flavor 1"));
-                    setState(() {});
-                  },
-                  child: Text("add Pizza"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    for (int i = 0; i < cart.length; i++) {
-                      print(cart[i].itemName);
-                      print(cart[i].quantity);
-                    }
-                  },
-                  child: Text("Print Pizza"),
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
     );
   }
 }

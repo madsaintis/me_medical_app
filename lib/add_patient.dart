@@ -1,6 +1,5 @@
 // ignore_for_file: prefer_const_constructors
 import 'package:flutter/material.dart';
-import 'package:me_medical_app/inventory.dart';
 import 'package:me_medical_app/patient_checkup.dart';
 import 'package:me_medical_app/services/auth.dart';
 import 'package:intl/intl.dart';
@@ -12,18 +11,18 @@ class AddPatientPage extends StatefulWidget {
 }
 
 class _AddPatientPageState extends State<AddPatientPage> {
-  TextEditingController _textEditingController = TextEditingController();
-  TextEditingController _textEditingController2 = TextEditingController();
+  final TextEditingController _textEditingController = TextEditingController();
+  final TextEditingController _textEditingController2 = TextEditingController();
   final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
 
-  String PatientName = '';
-  String IC = '';
-  String BOD = '';
+  String patientName = '';
+  String ic = '';
+  String bod = '';
   DateTime date = DateTime.now();
-  String Gender = '';
-  String ContactNumber = '';
-  String Address = '';
+  String gender = '';
+  String contactNumber = '';
+  String address = '';
 
   Future pickDate() async {
     final initialDate = DateTime.now();
@@ -73,7 +72,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
                 child: Column(children: <Widget>[
                   TextFormField(
                     onChanged: (val) {
-                      setState(() => PatientName = val);
+                      setState(() => patientName = val);
                     },
                     validator: (String? val) {
                       if (val != null && val.isEmpty) {
@@ -103,7 +102,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
                       return null;
                     },
                     onChanged: (val) {
-                      setState(() => IC = val);
+                      setState(() => ic = val);
                     },
                     decoration: InputDecoration(
                         labelText: "Patient ID",
@@ -128,7 +127,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
                       return null;
                     },
                     onChanged: (val) {
-                      setState(() => BOD = val);
+                      setState(() => bod = val);
                     },
                     decoration: InputDecoration(
                         labelText: "Birth Date",
@@ -147,7 +146,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
 
                       _textEditingController.text =
                           DateFormat('yyyy/MM/dd').format(date);
-                      BOD = DateFormat('yyyy/MM/dd').format(date).toString();
+                      bod = DateFormat('yyyy/MM/dd').format(date).toString();
                     },
                   ),
                   SizedBox(
@@ -162,7 +161,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
                       return null;
                     },
                     onChanged: (val) {
-                      setState(() => Gender = val);
+                      setState(() => gender = val);
                     },
                     decoration: InputDecoration(
                         labelText: "Gender",
@@ -185,23 +184,23 @@ class _AddPatientPageState extends State<AddPatientPage> {
                                       title: Text("Male"),
                                       onTap: () {
                                         setState(() {
-                                          Gender = "Male";
+                                          gender = "Male";
                                           Navigator.pop(context);
-                                          _textEditingController2.text = Gender;
+                                          _textEditingController2.text = gender;
                                         });
                                       }),
                                   ListTile(
                                       title: Text("Female"),
                                       onTap: () {
                                         setState(() {
-                                          Gender = "Female";
+                                          gender = "Female";
                                           Navigator.pop(context);
-                                          _textEditingController2.text = Gender;
+                                          _textEditingController2.text = gender;
                                         });
                                       })
                                 ]);
                           });
-                      FocusScope.of(context).requestFocus(new FocusNode());
+                      FocusScope.of(context).requestFocus(FocusNode());
                     },
                   ),
                   SizedBox(
@@ -215,7 +214,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
                       return null;
                     },
                     onChanged: (val) {
-                      setState(() => ContactNumber = val);
+                      setState(() => contactNumber = val);
                     },
                     decoration: InputDecoration(
                         labelText: "Contact Number",
@@ -234,12 +233,12 @@ class _AddPatientPageState extends State<AddPatientPage> {
                   TextFormField(
                     validator: (String? val) {
                       if (val != null && val.isEmpty) {
-                        return "Address field can't be empty";
+                        return "address field can't be empty";
                       }
                       return null;
                     },
                     onChanged: (val) {
-                      setState(() => Address = val);
+                      setState(() => address = val);
                     },
                     decoration: InputDecoration(
                         labelText: "Address",
@@ -260,8 +259,8 @@ class _AddPatientPageState extends State<AddPatientPage> {
                           child: Text("Add Patient"),
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              _auth.addPatient(PatientName, IC, BOD, Gender,
-                                  ContactNumber, Address);
+                              _auth.addPatient(patientName, ic, bod, gender,
+                                  contactNumber, address);
 
                               Navigator.push(
                                   context,

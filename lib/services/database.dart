@@ -40,18 +40,18 @@ class DatabaseService {
   }
 
   //update user's patient list
-  Future updatePatient(String PatientName, String IC, String BOD, String Gender,
-      String ContactNumber, String address) async {
+  Future updatePatient(String patientName, String ic, String bod, String gender,
+      String contactNumber, String address) async {
     return await patientCollection
         .doc(uid)
         .collection('patientInfo')
-        .doc(IC)
+        .doc(ic)
         .set({
-      'Patient Name': PatientName,
-      'IC': IC,
-      'BOD': BOD,
-      'Gender': Gender,
-      'ContactNumber': ContactNumber,
+      'Patient Name': patientName,
+      'IC': ic,
+      'BOD': bod,
+      'Gender': gender,
+      'ContactNumber': contactNumber,
       'address': address,
     });
   }
@@ -62,7 +62,7 @@ class DatabaseService {
         .collection('itemInfo')
         .doc(docID)
         .update({
-      "In Stock": FieldValue.increment(decrementStock),
+      "In Stock": FieldValue.increment(-decrementStock),
     });
   }
 

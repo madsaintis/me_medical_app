@@ -100,14 +100,14 @@ class AuthService {
     }
   }
 
-  Future addPatient(String PatientName, String IC, String BOD, String Gender,
-      String ContactNumber, String Address) async {
+  Future addPatient(String patientName, String ic, String bod, String gender,
+      String contactNumber, String address) async {
     try {
       final User? user = _auth.currentUser;
 
       //Create a new document for the new user with the uid
       await DatabaseService(uid: user!.uid)
-          .updatePatient(PatientName, IC, BOD, Gender, ContactNumber, Address);
+          .updatePatient(patientName, ic, bod, gender, contactNumber, address);
       return _userFirebase(user);
     } catch (e) {
       print(e.toString());

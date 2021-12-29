@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:me_medical_app/add_item.dart';
-import 'package:me_medical_app/add_stock.dart';
 import 'package:me_medical_app/services/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -15,8 +14,6 @@ class InventoryPage extends StatefulWidget {
 }
 
 class _InventoryPageState extends State<InventoryPage> {
-  // navigateToDetail(DocumentSnapshot details, String id) {}
-
   Future getPosts() async {
     var firestore = FirebaseFirestore.instance;
 
@@ -60,14 +57,32 @@ class _InventoryPageState extends State<InventoryPage> {
                 return ListView.builder(
                     itemCount: snapshot.data!.length,
                     itemBuilder: (_, index) {
-                      return ListTile(
-                          title: Text(snapshot.data[index].data()["Item Name"]),
-                          onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ItemDetailPage(
-                                        itemInfo: snapshot.data[index],
-                                      ))));
+                      if (snapshot.data!.length == 0) {
+                        return Center(
+                          child: Text("Your inventory is empty :("),
+                        );
+                      }
+                      return Container(
+                        child: ListTile(
+                            title:
+                                Text(snapshot.data[index].data()["Item Name"]),
+                            trailing: Wrap(
+                              children: [
+                                Text("In Stock: " +
+                                    snapshot.data[index]
+                                        .data()["In Stock"]
+                                        .toString())
+                              ],
+                            ),
+                            onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ItemDetailPage(
+                                          itemInfo: snapshot.data[index],
+                                        )))),
+                        decoration:
+                            BoxDecoration(border: Border(bottom: BorderSide())),
+                      );
                     });
               }
             }),
@@ -148,7 +163,6 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
               onPressed: () async {
                 await DatabaseService(uid: AuthService().getCurrentUID())
                     .deleteItem(widget.itemInfo!.id);
-                print(widget.itemInfo!.id);
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => InventoryPage()));
               },
@@ -160,64 +174,63 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                 left: 30.0, right: 20.0, top: 20.0, bottom: 20.0),
             child: Form(
                 key: _formKey,
-                child: Column(
-                  children: <Widget>[
-                    TextFormField(
-                      initialValue: widget.itemInfo!['Item Name'],
-                      onChanged: (val) {
-                        setState(() => itemName = val);
-                      },
-                      validator: (String? val) {
-                        if (val != null && val.isEmpty) {
-                          return "Item name field can't be empty";
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                          labelText: "Item Name",
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                          labelStyle: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue[200]),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          )),
-                    ),
-                    SizedBox(
-                      height: 15.0,
-                    ),
-                    TextFormField(
-                      initialValue: widget.itemInfo!['Buy Price'],
-                      validator: (String? val) {
-                        if (val != null && val.isEmpty) {
-                          return "Buy price field can't be empty";
-                        }
-                        return null;
-                      },
-                      onChanged: (val) {
-                        setState(() => buyPrice = val);
-                      },
-                      decoration: InputDecoration(
-                          labelText: "Buy Price",
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                          labelStyle: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue[200]),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          )),
-                    ),
-                    SizedBox(
-                      height: 15.0,
-                    ),
-                    TextFormField(
-                      initialValue: widget.itemInfo!['Sell Price'],
-                      onChanged: (val) {
-                        setState(() => sellPrice = val);
-                      },
-                      decoration: InputDecoration(
+                child: Column(children: <Widget>[
+                  TextFormField(
+                    initialValue: widget.itemInfo!['Item Name'],
+                    onChanged: (val) {
+                      setState(() => itemName = val);
+                    },
+                    validator: (String? val) {
+                      if (val != null && val.isEmpty) {
+                        return "Item name field can't be empty";
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                        labelText: "Item Name",
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                        labelStyle: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue[200]),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        )),
+                  ),
+                  SizedBox(
+                    height: 15.0,
+                  ),
+                  TextFormField(
+                    initialValue: widget.itemInfo!['Buy Price'],
+                    validator: (String? val) {
+                      if (val != null && val.isEmpty) {
+                        return "Buy price field can't be empty";
+                      }
+                      return null;
+                    },
+                    onChanged: (val) {
+                      setState(() => buyPrice = val);
+                    },
+                    decoration: InputDecoration(
+                        labelText: "Buy Price",
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                        labelStyle: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue[200]),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        )),
+                  ),
+                  SizedBox(
+                    height: 15.0,
+                  ),
+                  TextFormField(
+                    initialValue: widget.itemInfo!['Sell Price'],
+                    onChanged: (val) {
+                      setState(() => sellPrice = val);
+                    },
+                    decoration: InputDecoration(
                         labelText: "Sell Price",
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                         labelStyle: TextStyle(
@@ -226,39 +239,37 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                             color: Colors.blue[200]),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 15.0,
-                    ),
-                    TextFormField(
-                      initialValue: widget.itemInfo!['In Stock'],
-                      validator: (String? val) {
-                        if (val != null && val.isEmpty) {
-                          return "Name field can't be empty";
-                        }
-                        return null;
-                      },
-                      onChanged: (val) {
-                        setState(() => inStock = val);
-                      },
-                      decoration: InputDecoration(
-                          labelText: "In Stock",
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                          labelStyle: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue[200]),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          )),
-                    ),
-                    SizedBox(
-                      height: 20.0,
-                    ),
-                  ],
-                ))));
+                        )),
+                  ),
+                  SizedBox(
+                    height: 15.0,
+                  ),
+                  TextFormField(
+                    initialValue: widget.itemInfo!['In Stock'].toString(),
+                    validator: (String? val) {
+                      if (val != null && val.isEmpty) {
+                        return "Name field can't be empty";
+                      }
+                      return null;
+                    },
+                    onChanged: (val) {
+                      setState(() => inStock = val);
+                    },
+                    decoration: InputDecoration(
+                        labelText: "In Stock",
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                        labelStyle: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue[200]),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        )),
+                  ),
+                  SizedBox(
+                    height: 20.0,
+                  ),
+                ]))));
   }
 }
 

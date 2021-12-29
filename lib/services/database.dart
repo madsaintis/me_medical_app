@@ -17,7 +17,9 @@ class DatabaseService {
   final CollectionReference itemCollection =
       FirebaseFirestore.instance.collection('items');
 
-//! maaaa
+  final CollectionReference patientCollection =
+      FirebaseFirestore.instance.collection('patients');
+  
   final CollectionReference stockCollection =
       FirebaseFirestore.instance.collection('stocks');
 
@@ -47,6 +49,34 @@ class DatabaseService {
     });
   }
 
+  //update user's patient list
+  Future updatePatient(String patientName, String ic, String bod, String gender,
+      String contactNumber, String address) async {
+    return await patientCollection
+        .doc(uid)
+        .collection('patientInfo')
+        .doc(ic)
+        .set({
+      'Patient Name': patientName,
+      'IC': ic,
+      'BOD': bod,
+      'Gender': gender,
+      'ContactNumber': contactNumber,
+      'address': address,
+    });
+  }
+  
+  // Decrement medicine stock after check up
+  Future updateStockAfterCheckUp(String? docID, int decrementStock) async {
+    return await itemCollection
+        .doc(uid)
+        .collection('itemInfo')
+        .doc(docID)
+        .update({
+      "In Stock": FieldValue.increment(-decrementStock),
+    });
+  }
+  
 //!maaaaaaaaa
   Future updateStock(String itemName, int buyPrice, int stock) async {
     return await stockCollection.doc(uid).set({

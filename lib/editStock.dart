@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:me_medical_app/dashboard.dart';
 import 'package:me_medical_app/inventory.dart';
-import 'package:me_medical_app/models/stockList.dart';
+import 'stockList.dart';
 
 class EditStock extends StatefulWidget {
   const EditStock({Key? key}) : super(key: key);

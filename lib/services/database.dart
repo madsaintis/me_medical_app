@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:me_medical_app/models/stockList.dart';
+import 'package:me_medical_app/stockList.dart';
 import 'package:me_medical_app/models/user.dart';
 import 'package:me_medical_app/services/auth.dart';
 

@@ -49,11 +49,11 @@ class DatabaseService {
 
 //!maaaaaaaaa
   Future updateStock(String itemName, int buyPrice, int stock) async {
-    return await stockCollection.doc(uid).set({
+    return await stockCollection.doc(itemName).set({
       'Item Name': itemName,
       'Buy Price': buyPrice,
       'In Stock': stock,
-      'User ID': uid,
+      'User ID': itemName,
     });
   }
 
@@ -112,6 +112,9 @@ class DatabaseService {
 
 //!maaaaaaa
   Stream<List<Stock>> get stocks {
-    return stockCollection.snapshots().map(_stockListFromSnapshot);
+    return FirebaseFirestore.instance
+        .collection('stocks')
+        .snapshots()
+        .map(_stockListFromSnapshot);
   }
 }

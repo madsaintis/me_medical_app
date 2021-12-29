@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:me_medical_app/editStock.dart';
 import 'package:me_medical_app/inventory.dart';
 import 'package:me_medical_app/services/auth.dart';
@@ -71,6 +72,7 @@ class _StockCardsState extends State<StockCards> {
                     TextFormField(
                       initialValue:
                           (_currentStock ?? widget.stock.inStock).toString(),
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       validator: (val) =>
                           val!.isEmpty ? 'no stock added!' : null,
                       onChanged: (val) => setState(() {
@@ -134,62 +136,26 @@ class _StockCardsState extends State<StockCards> {
           onTap: () {
             _showSettingsPanel();
           },
-          child: Column(
-            children: <Widget>[
-              ListTile(
-                leading: (Text(
-                  '\t\t${widget.stock.inStock}\npiece',
-                  style: TextStyle(fontSize: 17),
-                )),
-                title: Text(
-                  widget.stock.name,
-                  style: TextStyle(fontSize: 30),
-                ),
-                subtitle: Text(
-                  'RM${widget.stock.buyPrice * widget.stock.inStock}',
-                  style: TextStyle(fontSize: 15),
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  TextButton(
-                      child: const Text(
-                        'add',
-                        style: TextStyle(fontSize: 20),
-                      ),
-                      onPressed: () {
-                        // _showEditStock();
-                      }),
-                  const SizedBox(width: 8),
-                  TextButton(
-                    child: const Text(
-                      'delete',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    onPressed: () => showDialog<String>(
-                      context: context,
-                      builder: (BuildContext context) => AlertDialog(
-                        title: const Text('Delete'),
-                        content: const Text(
-                            'do you want to procced deleting the item?'),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, 'Cancel'),
-                            child: const Text('Cancel'),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, 'Yes'),
-                            child: const Text('OK'),
-                          ),
-                        ],
-                      ),
-                    ),
+          child: Padding(
+            padding: EdgeInsets.only(top: 6, bottom: 6),
+            child: Column(
+              children: <Widget>[
+                ListTile(
+                  leading: (Text(
+                    '\t\t${widget.stock.inStock}\npiece',
+                    style: TextStyle(fontSize: 17),
+                  )),
+                  title: Text(
+                    widget.stock.name,
+                    style: TextStyle(fontSize: 30),
                   ),
-                  const SizedBox(width: 20),
-                ],
-              ),
-            ],
+                  subtitle: Text(
+                    'RM${widget.stock.buyPrice * widget.stock.inStock}',
+                    style: TextStyle(fontSize: 15),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

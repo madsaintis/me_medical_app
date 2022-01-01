@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:me_medical_app/edit_profile.dart';
 import 'package:me_medical_app/inventory.dart';
 import 'package:me_medical_app/patient_checkup.dart';
+import 'package:me_medical_app/patient_list.dart';
 import 'package:me_medical_app/services/auth.dart';
 import 'package:me_medical_app/wrapper.dart';
 
@@ -73,7 +74,10 @@ class Dashboard extends StatelessWidget {
                 backgroundColor: Colors.teal,
               ),
               //later implement the jump page function
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => PatientListPage()));
+              },
             ),
             SizedBox(
               height: 20.0,

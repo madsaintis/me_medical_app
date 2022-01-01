@@ -1,3 +1,4 @@
+import 'package:me_medical_app/checkup_list.dart';
 import 'package:me_medical_app/patient_checkup.dart';
 
 import 'package:flutter/material.dart';
@@ -46,7 +47,7 @@ class CheckUpDetailState extends State<CheckUpDetail> {
             ),
             onPressed: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => PatientCheckUp()));
+                  MaterialPageRoute(builder: (context) => CheckUpList()));
             },
           ),
         ),

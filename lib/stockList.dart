@@ -87,8 +87,7 @@ class _StockCardsState extends State<StockCards> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
-                        RaisedButton(
-                            color: Colors.brown[400],
+                        ElevatedButton(
                             child: Text(
                               'update',
                               style: TextStyle(color: Colors.white),
@@ -107,8 +106,7 @@ class _StockCardsState extends State<StockCards> {
                         SizedBox(
                           width: 8,
                         ),
-                        RaisedButton(
-                            color: Colors.brown[400],
+                        ElevatedButton(
                             child: Text(
                               'delete',
                               style: TextStyle(color: Colors.white),

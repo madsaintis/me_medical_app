@@ -36,10 +36,10 @@ class Dashboard extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.logout),
               onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-                await _auth.signOut();
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Wrapper()));
+                await FirebaseAuth.instance.signOut().then((value) =>
+                    Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) => Wrapper()),
+                        (route) => false));
               },
             ),
           ],

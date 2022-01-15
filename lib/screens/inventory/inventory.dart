@@ -1,11 +1,12 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:me_medical_app/add_item.dart';
-import 'package:me_medical_app/add_stock.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:me_medical_app/screens/inventory/add_item.dart';
+import 'package:me_medical_app/screens/inventory/add_stock.dart';
+import 'package:me_medical_app/screens/dashboard/dashboard.dart';
 import 'package:me_medical_app/services/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:me_medical_app/dashboard.dart';
 import 'package:me_medical_app/services/database.dart';
 
 // ignore: use_key_in_widget_constructors
@@ -15,6 +16,7 @@ class InventoryPage extends StatefulWidget {
 }
 
 class _InventoryPageState extends State<InventoryPage> {
+  TextEditingController editingController = TextEditingController();
   Future getPosts() async {
     var firestore = FirebaseFirestore.instance;
 
@@ -27,7 +29,13 @@ class _InventoryPageState extends State<InventoryPage> {
     return qn.docs;
   }
 
+  @override
+  void initState() {
+    super.initState();
+  }
+
   final db = FirebaseFirestore.instance;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,41 +58,123 @@ class _InventoryPageState extends State<InventoryPage> {
         body: FutureBuilder(
             future: getPosts(),
             builder: (_, AsyncSnapshot snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
+              if (!snapshot.hasData) {
                 return Center(
-                  child: Text("Loading"),
+                  child: Text("Your inventory is empty :("),
                 );
               } else {
-                return ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (_, index) {
-                      if (snapshot.data!.length == 0) {
-                        return Center(
-                          child: Text("Your inventory is empty :("),
-                        );
-                      }
-                      return Container(
-                        child: ListTile(
-                            title:
-                                Text(snapshot.data[index].data()["Item Name"]),
-                            trailing: Wrap(
-                              children: [
-                                Text("In Stock: " +
-                                    snapshot.data[index]
-                                        .data()["In Stock"]
-                                        .toString())
-                              ],
-                            ),
-                            onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => ItemDetailPage(
-                                          itemInfo: snapshot.data[index],
-                                        )))),
-                        decoration:
-                            BoxDecoration(border: Border(bottom: BorderSide())),
-                      );
-                    });
+                return Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextField(
+                        autofocus: false,
+                        onChanged: (value) {
+                          setState(() {});
+                        },
+                        controller: editingController,
+                        decoration: InputDecoration(
+                            labelText: "Search",
+                            hintText: "Search",
+                            prefixIcon: Icon(Icons.search),
+                            border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(25.0)))),
+                      ),
+                    ),
+                    Expanded(
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: snapshot.data.length,
+                            itemBuilder: (context, index) {
+                              if (editingController.text.isEmpty) {
+                                return SizedBox(
+                                    height: 80.0,
+                                    child: Card(
+                                        margin: EdgeInsets.all(10),
+                                        child: Align(
+                                            alignment: Alignment.center,
+                                            child: ListTile(
+                                                title: Text(
+                                                    snapshot.data[index]
+                                                        .data()["Item Name"],
+                                                    style: TextStyle(
+                                                        fontSize: 20,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                                trailing: Wrap(
+                                                  children: [
+                                                    Text(
+                                                        snapshot.data[index]
+                                                            .data()["In Stock"]
+                                                            .toString(),
+                                                        style: TextStyle(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold))
+                                                  ],
+                                                ),
+                                                onTap: () {
+                                                  editingController.clear();
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              ItemDetailPage(
+                                                                itemInfo:
+                                                                    snapshot.data[
+                                                                        index],
+                                                              )));
+                                                }))));
+                              } else if (snapshot.data[index]["Item Name"]
+                                  .toLowerCase()
+                                  .contains(editingController.text)) {
+                                return SizedBox(
+                                    height: 80.0,
+                                    child: Card(
+                                        margin: EdgeInsets.all(10),
+                                        child: Align(
+                                            alignment: Alignment.center,
+                                            child: ListTile(
+                                                title: Text(
+                                                    snapshot.data[index]
+                                                        .data()["Item Name"],
+                                                    style: TextStyle(
+                                                        fontSize: 20,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                                trailing: Wrap(
+                                                  children: [
+                                                    Text(
+                                                        snapshot.data[index]
+                                                            .data()["In Stock"]
+                                                            .toString(),
+                                                        style: TextStyle(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold))
+                                                  ],
+                                                ),
+                                                onTap: () {
+                                                  editingController.clear();
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              ItemDetailPage(
+                                                                itemInfo:
+                                                                    snapshot.data[
+                                                                        index],
+                                                              )));
+                                                }))));
+                              } else {
+                                return Container();
+                              }
+                            }))
+                  ],
+                );
               }
             }),
         floatingActionButton: Column(
@@ -154,8 +244,13 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
               color: Colors.white,
             ),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => InventoryPage()));
+              Navigator.pushAndRemoveUntil<dynamic>(
+                context,
+                MaterialPageRoute<dynamic>(
+                  builder: (BuildContext context) => InventoryPage(),
+                ),
+                (route) => true,
+              );
             },
           ),
           actions: <Widget>[
@@ -164,8 +259,14 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
               onPressed: () async {
                 await DatabaseService(uid: AuthService().getCurrentUID())
                     .deleteItem(widget.itemInfo!.id);
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => InventoryPage()));
+                Navigator.pushAndRemoveUntil<dynamic>(
+                  context,
+                  MaterialPageRoute<dynamic>(
+                    builder: (BuildContext context) => InventoryPage(),
+                  ),
+                  (route) =>
+                      true, //if you want to disable back feature set to false
+                );
               },
             ),
           ],
@@ -273,16 +374,3 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                 ]))));
   }
 }
-
-
-/*
-floatingActionButton: FloatingActionButton.extended(
-            elevation: 0.0,
-            label: Text('Add Item'),
-            icon: Icon(Icons.add),
-            backgroundColor: Color(0xFFE57373),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => AddItemPage()));
-            })
-*/

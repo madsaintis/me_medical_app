@@ -2,14 +2,14 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:me_medical_app/add_patient.dart';
-import 'package:me_medical_app/checkup_details.dart';
+import 'package:me_medical_app/screens/checkup_pages/add_patient.dart';
+import 'package:me_medical_app/screens/checkup_pages/checkup_details.dart';
 import 'package:intl/intl.dart';
-import 'package:me_medical_app/checkup_list.dart';
+import 'package:me_medical_app/screens/checkup_pages/checkup_list.dart';
 import 'package:me_medical_app/services/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:me_medical_app/dashboard.dart';
+import 'package:me_medical_app/screens/dashboard/dashboard.dart';
 import 'package:me_medical_app/services/database.dart';
 
 // ignore: use_key_in_widget_constructors
@@ -23,35 +23,38 @@ class PatientCheckUpState extends State<PatientCheckUp> {
     setState(() {});
   }
 
-  Future getPosts() async {
-    var firestore = FirebaseFirestore.instance;
+  final Stream<QuerySnapshot> itemStream = FirebaseFirestore.instance
+      .collection('items')
+      .doc(AuthService().getCurrentUID())
+      .collection('itemInfo')
+      .snapshots();
 
-    QuerySnapshot qn = await firestore
-        .collection("items")
-        .doc(AuthService().getCurrentUID())
-        .collection('itemInfo')
-        .get();
-
-    return qn.docs;
-  }
-
+  final Stream<QuerySnapshot> patientStream = FirebaseFirestore.instance
+      .collection('patients')
+      .doc(AuthService().getCurrentUID())
+      .collection('patientInfo')
+      .snapshots();
   List<DropdownMenuItem> patients = [];
   List<DropdownMenuItem> items = [];
-  List<CartItem>? cart = [];
-  List<String> medicine = [];
+
   String? description = "";
   String? value = "Not Available";
   String? selectedPatient;
   String? patientIC;
   String? patientName;
   String? patientHint;
+  List<CartItem> cart = [];
+  List<String> medicine = [];
+  List<String> medName = [];
+  List<String> medQuantity = [];
   bool isButtonActive = false;
+  final AuthService _auth = AuthService();
 
   final db = FirebaseFirestore.instance;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: false,
+        resizeToAvoidBottomInset: true,
         appBar: AppBar(
           centerTitle: true,
           title: Text("Patient Check Up"),
@@ -69,24 +72,16 @@ class PatientCheckUpState extends State<PatientCheckUp> {
           ),
         ),
         body: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('items')
-                .doc(AuthService().getCurrentUID())
-                .collection('itemInfo')
-                .snapshots(),
+            stream: itemStream,
             builder: (context, snapshot) {
               return StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('patients')
-                      .doc(AuthService().getCurrentUID())
-                      .collection('patientInfo')
-                      .snapshots(),
+                  stream: patientStream,
                   builder: (context, snapshot2) {
-                    if (!snapshot.hasData || !snapshot2.hasData)
+                    if (!snapshot.hasData || !snapshot2.hasData) {
                       return Center(
                         child: CupertinoActivityIndicator(),
                       );
-                    else {
+                    } else {
                       if (snapshot.data!.size == 0) {
                       } else {
                         if (items.isEmpty) {
@@ -98,7 +93,11 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                   snap['Item Name'],
                                   style: TextStyle(color: Color(0xff11b719)),
                                 ),
-                                value: snap['Item Name'] + " " + snap.id,
+                                value: snap['Item Name'] +
+                                    " " +
+                                    snap.id +
+                                    " " +
+                                    snap['In Stock'].toString(),
                               ),
                             );
                           }
@@ -148,6 +147,7 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                             child: DropdownButton<dynamic>(
                                                 value: selectedPatient,
                                                 items: patients,
+                                                isDense: true,
                                                 onChanged: (val) {
                                                   setState(() {
                                                     isButtonActive = true;
@@ -191,7 +191,7 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                         scrollDirection: Axis.vertical,
                                         shrinkWrap: true,
                                         key: UniqueKey(),
-                                        itemCount: cart!.length,
+                                        itemCount: cart.length,
                                         itemBuilder:
                                             (BuildContext ctxt, int index) {
                                           return CartWidget(
@@ -211,10 +211,11 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                           onPressed: isButtonActive
                                               ? () {
                                                   setState(() {});
-                                                  cart!.add(CartItem(
+                                                  cart.add(CartItem(
                                                       itemID: "",
                                                       itemName: "",
-                                                      quantity: ""));
+                                                      quantity: "",
+                                                      itemStock: ""));
                                                 }
                                               : null,
                                         )),
@@ -241,7 +242,7 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                             maxLines: null,
                                             onChanged: (value) =>
                                                 description = value,
-                                          )
+                                          ),
                                         ])),
                                 Center(
                                     child: ElevatedButton(
@@ -250,21 +251,24 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                             ? () async {
                                                 setState(() {});
                                                 for (int i = 0;
-                                                    i < cart!.length;
+                                                    i < cart.length;
                                                     i++) {
-                                                  medicine.add(
-                                                      cart![i].itemName! +
-                                                          " - " +
-                                                          cart![i].quantity!);
-
-                                                  await DatabaseService(
-                                                          uid: AuthService()
-                                                              .getCurrentUID())
-                                                      .updateStockAfterCheckUp(
-                                                          cart![i].itemID!,
-                                                          int.parse(cart![i]
-                                                              .quantity!));
+                                                  medName.add(
+                                                      cart[i].itemName! +
+                                                          " " +
+                                                          cart[i].quantity!);
+                                                  medicine.add(cart[i].itemID! +
+                                                      " " +
+                                                      cart[i].itemName! +
+                                                      " " +
+                                                      cart[i].quantity! +
+                                                      " " +
+                                                      cart[i].itemStock!);
+                                                  medQuantity
+                                                      .add(cart[i].quantity!);
                                                 }
+
+                                                _auth.updateInventory(medicine);
                                                 patientIC = selectedPatient!
                                                     .split(" ")[0];
                                                 patientName = selectedPatient!
@@ -281,8 +285,23 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                                             .format(
                                                                 DateTime.now())
                                                             .toString(),
-                                                        medicine,
+                                                        medName,
                                                         description!);
+
+                                                await DatabaseService(
+                                                        uid: AuthService()
+                                                            .getCurrentUID())
+                                                    .updatePatientCheckUpList(
+                                                        patientName!,
+                                                        patientIC!,
+                                                        DateFormat(
+                                                                'yyyy/MM/dd hh:mm a')
+                                                            .format(
+                                                                DateTime.now())
+                                                            .toString(),
+                                                        medName,
+                                                        description!);
+
                                                 Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
@@ -299,7 +318,7 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                                                             .now())
                                                                     .toString(),
                                                                 medicine:
-                                                                    medicine,
+                                                                    medName,
                                                                 description:
                                                                     description)));
                                               }
@@ -348,25 +367,20 @@ class PatientCheckUpState extends State<PatientCheckUp> {
 class Quantity extends StatefulWidget {
   CartItem? cartItem;
 
-  Quantity({this.cartItem});
+  Quantity({Key? key, this.cartItem}) : super(key: key);
   @override
   _QuantityState createState() => _QuantityState();
 }
 
 class _QuantityState extends State<Quantity> {
-  String? _value = "";
-
   @override
   void initState() {
     super.initState();
-    _value = widget.cartItem!.quantity;
   }
 
   @override
   void didUpdateWidget(Quantity oldWidget) {
-    if (oldWidget.cartItem!.quantity != widget.cartItem!.quantity) {
-      _value = widget.cartItem!.quantity!;
-    }
+    if (oldWidget.cartItem!.quantity != widget.cartItem!.quantity) {}
     super.didUpdateWidget(oldWidget);
   }
 
@@ -395,7 +409,7 @@ class Medicine extends StatefulWidget {
 
   CartItem? cartItem;
 
-  Medicine({this.cartItem, required this.items});
+  Medicine({Key? key, this.cartItem, required this.items}) : super(key: key);
   @override
   _MedicineState createState() => _MedicineState();
 }
@@ -430,6 +444,7 @@ class _MedicineState extends State<Medicine> {
                   _value = value;
                   widget.cartItem!.itemName = _value!.split(" ")[0];
                   widget.cartItem!.itemID = _value!.split(" ")[1];
+                  widget.cartItem!.itemStock = _value!.split(" ")[2];
                 });
               })),
     );
@@ -439,8 +454,9 @@ class _MedicineState extends State<Medicine> {
 class CartItem {
   String? itemID;
   String? itemName;
+  String? itemStock;
   String? quantity;
-  CartItem({this.itemID, this.itemName, this.quantity});
+  CartItem({this.itemID, this.itemName, this.quantity, this.itemStock});
 }
 
 class CartWidget extends StatefulWidget {
@@ -449,7 +465,9 @@ class CartWidget extends StatefulWidget {
   int? index;
   VoidCallback? callback;
 
-  CartWidget({this.cart, this.index, this.callback, required this.items});
+  CartWidget(
+      {Key? key, this.cart, this.index, this.callback, required this.items})
+      : super(key: key);
   @override
   _CartWidgetState createState() => _CartWidgetState();
 }

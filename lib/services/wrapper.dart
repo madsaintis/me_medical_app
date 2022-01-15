@@ -1,8 +1,8 @@
 // ignore_for_file: use_key_in_widget_constructors
 
 import 'package:flutter/material.dart';
-import 'package:me_medical_app/authenticate.dart';
-import 'package:me_medical_app/dashboard.dart';
+import 'package:me_medical_app/services/authenticate.dart';
+import 'package:me_medical_app/screens/dashboard/dashboard.dart';
 import 'package:me_medical_app/models/user.dart';
 import 'package:provider/provider.dart';
 

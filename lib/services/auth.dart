@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:me_medical_app/models/user.dart';
 import 'package:me_medical_app/services/database.dart';
@@ -7,24 +9,13 @@ class AuthService {
 
   //create user obj based on FirebaseUser
   TheUser? _userFirebase(User user) {
+    // ignore: unnecessary_null_comparison
     return user != null ? TheUser(uid: user.uid) : null;
   }
 
   // auth change user stream
   Stream<TheUser?> get user {
     return _auth.authStateChanges().map((User? user) => _userFirebase(user!));
-  }
-
-  //sign in anonymously
-  Future signInAnon() async {
-    try {
-      UserCredential result = await _auth.signInAnonymously();
-      User? user = result.user;
-      return _userFirebase(user!);
-    } catch (e) {
-      print(e.toString());
-      return null;
-    }
   }
 
   //sign in with email & password
@@ -59,14 +50,13 @@ class AuthService {
   }
 
   //edit profile
-  Future editProfile(
-      String name, String phone, String email, String location) async {
+  Future editProfile(String name, String phone, String location) async {
     try {
       User? user = _auth.currentUser;
 
       //Create a new document for the new user with the uid
       await DatabaseService(uid: user!.uid)
-          .updateProfile(name, phone, email, location);
+          .updateProfile(name, phone, location);
       return _userFirebase(user);
     } catch (e) {
       print(e.toString());
@@ -115,9 +105,27 @@ class AuthService {
     }
   }
 
+  Future updateInventory(List<String> meds) async {
+    String itemID, itemQuantity, itemStock;
+
+    final User? user = _auth.currentUser;
+    for (int i = 0; i <= meds.length - 1; i++) {
+      itemID = meds[i].split(" ")[0];
+      itemQuantity = meds[i].split(" ")[2];
+      itemStock = meds[i].split(" ")[3];
+      print(itemStock);
+      print(itemID);
+      print(itemQuantity);
+      await DatabaseService(uid: user!.uid).updateStockAfterCheckUp(
+          itemID, (int.tryParse(itemStock)! - int.parse(itemQuantity)));
+    }
+  }
+
   //get current UID
   String getCurrentUID() {
-    return _auth.currentUser!.uid;
+    final User? userr = _auth.currentUser;
+    final uid = userr!.uid;
+    return uid;
   }
 
   //get current user

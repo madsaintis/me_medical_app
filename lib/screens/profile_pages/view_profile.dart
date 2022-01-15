@@ -2,17 +2,17 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:me_medical_app/dashboard.dart';
+import 'package:me_medical_app/screens/dashboard/dashboard.dart';
+import 'package:me_medical_app/screens/profile_pages/edit_profile.dart';
 import 'package:me_medical_app/services/auth.dart';
 
 // ignore: use_key_in_widget_constructors
-class EditProfilePage extends StatefulWidget {
+class ViewProfilePage extends StatefulWidget {
   @override
-  _EditProfilePageState createState() => _EditProfilePageState();
+  _ViewProfilePageState createState() => _ViewProfilePageState();
 }
 
-class _EditProfilePageState extends State<EditProfilePage> {
-  final AuthService _auth = AuthService();
+class _ViewProfilePageState extends State<ViewProfilePage> {
   final _formKey = GlobalKey<FormState>();
 
   String name = '';
@@ -33,7 +33,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text("Edit Profile"),
+        title: Text("My Profile"),
         backgroundColor: Colors.teal,
         elevation: 3,
         leading: IconButton(
@@ -46,6 +46,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 context, MaterialPageRoute(builder: (context) => Dashboard()));
           },
         ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.edit,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => EditProfile()));
+            },
+          ),
+        ],
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _usersStream,
@@ -56,144 +68,104 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Text("Loading");
-          }
-
-          if (!snapshot.hasData) {
-            return Text("No item added in the inventory yet.",
-                textAlign: TextAlign.center);
           } else {
             return ListView(
               children: snapshot.data!.docs.map((DocumentSnapshot document) {
                 Map<String, dynamic> data =
                     document.data()! as Map<String, dynamic>;
+
                 name = data['Name'];
-                print(name);
                 email = data['Email'];
                 phone = data['Phone'];
                 location = data['Clinic Location'];
 
                 return Form(
                     key: _formKey,
-                    child: Column(children: <Widget>[
-                      Text(
-                        "Personal Information",
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.w500),
-                      ),
-                      SizedBox(
-                        height: 15.0,
-                      ),
-                      TextFormField(
-                        initialValue: data['Name'],
-                        key: Key(data['Name'].toString()),
-                        onChanged: (val) {
-                          setState(() => name = val);
-                        },
-                        validator: (String? val) {
-                          if (val != null && val.isEmpty) {
-                            return "Name field can't be empty";
-                          }
-                          return null;
-                        },
-                        decoration: InputDecoration(
-                            labelText: "Full Name ",
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                            labelStyle: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue[200]),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            )),
-                      ),
-                      SizedBox(
-                        height: 15.0,
-                      ),
-                      TextFormField(
-                        validator: (String? val) {
-                          if (val != null && val.isEmpty) {
-                            return "Name field can't be empty";
-                          }
-                          return null;
-                        },
-                        onChanged: (val) {
-                          setState(() => email = val);
-                        },
-                        initialValue: data['Email'],
-                        decoration: InputDecoration(
-                            labelText: "Email",
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                            labelStyle: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue[200]),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            )),
-                      ),
-                      SizedBox(
-                        height: 15.0,
-                      ),
-                      TextFormField(
-                        validator: (String? val) {
-                          if (val != null && val.isEmpty) {
-                            return "Name field can't be empty";
-                          }
-                          return null;
-                        },
-                        onChanged: (val) {
-                          setState(() => phone = val);
-                        },
-                        initialValue: data['Phone'],
-                        decoration: InputDecoration(
-                            labelText: "Phone Number",
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                            labelStyle: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue[200]),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            )),
-                      ),
-                      SizedBox(
-                        height: 15.0,
-                      ),
-                      TextFormField(
-                        onChanged: (val) {
-                          setState(() => location = val);
-                        },
-                        initialValue: data['Clinic Location'],
-                        decoration: InputDecoration(
-                            labelText: "Clinic Location",
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                            labelStyle: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue[200]),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            )),
-                      ),
-                      Center(
-                          child: ElevatedButton(
-                              child: Text("Change Information"),
-                              onPressed: () async {
-                                if (_formKey.currentState!.validate()) {
-                                  print(name);
-                                  setState(
-                                      () => error = 'Changed successfully');
-                                  dynamic result = await _auth.editProfile(
-                                      name, phone, email, location);
-
-                                  if (result == null) {
-                                    setState(() => error = 'Invalid inputs');
-                                  }
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                  primary: Colors.amber))),
-                    ]));
+                    child: Container(
+                        padding: EdgeInsets.all(10.0),
+                        child: Column(children: [
+                          SizedBox(
+                            height: 15.0,
+                          ),
+                          TextFormField(
+                            initialValue: data['Name'],
+                            onChanged: (val) => name = val,
+                            validator: (String? val) {
+                              if (val != null && val.isEmpty) {
+                                return "Name field can't be empty";
+                              }
+                              return null;
+                            },
+                            decoration: InputDecoration(
+                                labelText: "Full Name ",
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always,
+                                labelStyle: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue[200]),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                )),
+                          ),
+                          SizedBox(
+                            height: 15.0,
+                          ),
+                          TextFormField(
+                            validator: (String? val) {
+                              if (val != null && val.isEmpty) {
+                                return "Name field can't be empty";
+                              }
+                              return null;
+                            },
+                            onChanged: (val) => email = val,
+                            initialValue: data['Email'],
+                            decoration: InputDecoration(
+                                labelText: "Email",
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always,
+                                labelStyle: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue[200]),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                )),
+                          ),
+                          SizedBox(
+                            height: 15.0,
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                "Phone Number",
+                                style: TextStyle(fontSize: 20.0),
+                              ),
+                              Text(data['Phone']),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 15.0,
+                          ),
+                          TextFormField(
+                            onChanged: (val) => location = val,
+                            initialValue: data['Clinic Location'],
+                            decoration: InputDecoration(
+                                labelText: "Clinic Location",
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always,
+                                labelStyle: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue[200]),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                )),
+                          ),
+                          SizedBox(
+                            height: 15.0,
+                          ),
+                        ])));
               }).toList(),
             );
           }

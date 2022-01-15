@@ -2,17 +2,14 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:me_medical_app/edit_profile.dart';
-import 'package:me_medical_app/inventory.dart';
-import 'package:me_medical_app/patient_checkup.dart';
-import 'package:me_medical_app/patient_list.dart';
-import 'package:me_medical_app/services/auth.dart';
-import 'package:me_medical_app/wrapper.dart';
+import 'package:me_medical_app/screens/profile_pages/view_profile.dart';
+import 'package:me_medical_app/screens/inventory/inventory.dart';
+import 'package:me_medical_app/screens/checkup_pages/patient_checkup.dart';
+import 'package:me_medical_app/screens/patients_info/patient_list.dart';
+import 'package:me_medical_app/services/wrapper.dart';
 
 // ignore: use_key_in_widget_constructors
 class Dashboard extends StatelessWidget {
-  final AuthService _auth = AuthService();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,17 +26,23 @@ class Dashboard extends StatelessWidget {
             ),
             onPressed: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => EditProfilePage()));
+                  MaterialPageRoute(builder: (context) => ViewProfilePage()));
             },
           ),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.logout),
               onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-                await _auth.signOut();
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Wrapper()));
+                await FirebaseAuth.instance.signOut().then((value) =>
+                    Navigator.of(context, rootNavigator: true)
+                        .pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (BuildContext context) {
+                          return Wrapper();
+                        },
+                      ),
+                      (_) => false,
+                    ));
               },
             ),
           ],
@@ -65,19 +68,31 @@ class Dashboard extends StatelessWidget {
             SizedBox(
               height: 20.0,
             ),
-            TextButton.icon(
-              icon: Icon(Icons.list_alt),
-              label: Text('Patient Information',
-                  style: TextStyle(color: Colors.white)),
-              style: TextButton.styleFrom(
-                primary: Colors.white,
-                backgroundColor: Colors.teal,
-              ),
-              //later implement the jump page function
-              onPressed: () {
+            InkWell(
+              onTap: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => PatientListPage()));
-              },
+              }, // Handle your callback
+              child: Ink(
+                height: 100,
+                width: 100,
+                color: Colors.blue,
+                child: TextButton.icon(
+                  icon: Icon(Icons.list_alt),
+                  label: Text('Patient Information',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w500,
+                      )),
+                  style: TextButton.styleFrom(
+                    primary: Colors.white,
+                    backgroundColor: Colors.teal,
+                  ),
+                  //later implement the jump page function
+                  onPressed: () {},
+                ),
+              ),
             ),
             SizedBox(
               height: 20.0,

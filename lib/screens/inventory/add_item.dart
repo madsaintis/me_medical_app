@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 import 'package:flutter/material.dart';
-import 'package:me_medical_app/inventory.dart';
+import 'package:me_medical_app/screens/inventory/inventory.dart';
 import 'package:me_medical_app/services/auth.dart';
 import 'package:flutter/services.dart';
 

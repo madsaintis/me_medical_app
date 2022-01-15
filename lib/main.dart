@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         theme: ThemeData(
           // Define the default brightness and colors.
-          brightness: Brightness.dark,
+          brightness: Brightness.light,
           primaryColor: Colors.lightBlue[800],
 
           // Define the default font family.
@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
                 TextStyle(fontFamily: GoogleFonts.comicNeue().fontFamily),
             bodyText2: const TextStyle(),
           ).apply(
-            bodyColor: Colors.orange,
+            bodyColor: Colors.blue[500],
             displayColor: Colors.blue,
           ),
         ),

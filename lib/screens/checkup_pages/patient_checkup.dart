@@ -23,6 +23,17 @@ class PatientCheckUpState extends State<PatientCheckUp> {
     setState(() {});
   }
 
+  final Stream<QuerySnapshot> itemStream = FirebaseFirestore.instance
+      .collection('items')
+      .doc(AuthService().getCurrentUID())
+      .collection('itemInfo')
+      .snapshots();
+
+  final Stream<QuerySnapshot> patientStream = FirebaseFirestore.instance
+      .collection('patients')
+      .doc(AuthService().getCurrentUID())
+      .collection('patientInfo')
+      .snapshots();
   List<DropdownMenuItem> patients = [];
   List<DropdownMenuItem> items = [];
 
@@ -34,6 +45,8 @@ class PatientCheckUpState extends State<PatientCheckUp> {
   String? patientHint;
   List<CartItem> cart = [];
   List<String> medicine = [];
+  List<String> medName = [];
+  List<String> medQuantity = [];
   bool isButtonActive = false;
   final AuthService _auth = AuthService();
 
@@ -59,18 +72,10 @@ class PatientCheckUpState extends State<PatientCheckUp> {
           ),
         ),
         body: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('items')
-                .doc(AuthService().getCurrentUID())
-                .collection('itemInfo')
-                .snapshots(),
+            stream: itemStream,
             builder: (context, snapshot) {
               return StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('patients')
-                      .doc(AuthService().getCurrentUID())
-                      .collection('patientInfo')
-                      .snapshots(),
+                  stream: patientStream,
                   builder: (context, snapshot2) {
                     if (!snapshot.hasData || !snapshot2.hasData) {
                       return Center(
@@ -248,6 +253,10 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                                 for (int i = 0;
                                                     i < cart.length;
                                                     i++) {
+                                                  medName.add(
+                                                      cart[i].itemName! +
+                                                          " " +
+                                                          cart[i].quantity!);
                                                   medicine.add(cart[i].itemID! +
                                                       " " +
                                                       cart[i].itemName! +
@@ -255,7 +264,10 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                                       cart[i].quantity! +
                                                       " " +
                                                       cart[i].itemStock!);
+                                                  medQuantity
+                                                      .add(cart[i].quantity!);
                                                 }
+
                                                 _auth.updateInventory(medicine);
                                                 patientIC = selectedPatient!
                                                     .split(" ")[0];
@@ -273,7 +285,21 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                                             .format(
                                                                 DateTime.now())
                                                             .toString(),
-                                                        medicine,
+                                                        medName,
+                                                        description!);
+
+                                                await DatabaseService(
+                                                        uid: AuthService()
+                                                            .getCurrentUID())
+                                                    .updatePatientCheckUpList(
+                                                        patientName!,
+                                                        patientIC!,
+                                                        DateFormat(
+                                                                'yyyy/MM/dd hh:mm a')
+                                                            .format(
+                                                                DateTime.now())
+                                                            .toString(),
+                                                        medName,
                                                         description!);
 
                                                 Navigator.push(
@@ -292,7 +318,7 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                                                             .now())
                                                                     .toString(),
                                                                 medicine:
-                                                                    medicine,
+                                                                    medName,
                                                                 description:
                                                                     description)));
                                               }

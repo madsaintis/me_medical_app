@@ -77,6 +77,22 @@ class DatabaseService {
     });
   }
 
+  Future updatePatientCheckUpList(String patientName, String ic, String date,
+      List<String> medicine, String description) async {
+    return await patientCollection
+        .doc(uid)
+        .collection('patientInfo')
+        .doc(ic)
+        .collection('patientCheckUpInfo')
+        .add({
+      'Patient Name': patientName,
+      'IC': ic,
+      'Date': date,
+      'Medications': medicine,
+      'Description': description,
+    });
+  }
+
   // Decrement medicine stock after check up
   Future updateStockAfterCheckUp(String? docID, int decrementStock) async {
     return await itemCollection

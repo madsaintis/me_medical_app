@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:me_medical_app/screens/profile_pages/view_profile.dart';
 import 'package:me_medical_app/services/auth.dart';
+import 'package:me_medical_app/services/wrapper.dart';
 
 class EditProfile extends StatefulWidget {
   @override
@@ -9,6 +11,8 @@ class EditProfile extends StatefulWidget {
 }
 
 class EditProfileState extends State<EditProfile> {
+  final _newpasswordController = TextEditingController();
+  final _repeatpasswordController = TextEditingController();
   final Stream<QuerySnapshot> _usersStream = FirebaseFirestore.instance
       .collection('users')
       .where('User ID', isEqualTo: AuthService().getCurrentUID())
@@ -59,7 +63,14 @@ class EditProfileState extends State<EditProfile> {
               color: Colors.white,
             ),
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pushAndRemoveUntil<dynamic>(
+                context,
+                MaterialPageRoute<dynamic>(
+                  builder: (BuildContext context) => ViewProfilePage(),
+                ),
+                (route) =>
+                    true, //if you want to disable back feature set to false
+              );
             },
           ),
         ),
@@ -201,21 +212,6 @@ class EditProfileState extends State<EditProfile> {
                                     const SizedBox(
                                       height: 15.0,
                                     ),
-                                    TextFormField(
-                                      onChanged: (val) => password = val,
-                                      decoration: InputDecoration(
-                                          labelText: "Current Password",
-                                          floatingLabelBehavior:
-                                              FloatingLabelBehavior.always,
-                                          labelStyle: TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.blue[200]),
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          )),
-                                    ),
                                     Center(
                                         child: ElevatedButton(
                                             child: const Text(
@@ -253,11 +249,6 @@ class EditProfileState extends State<EditProfile> {
                               Map<String, dynamic> data =
                                   document.data()! as Map<String, dynamic>;
 
-                              name = data['Name'];
-
-                              phone = data['Phone'];
-                              location = data['Clinic Location'];
-
                               return Form(
                                   key: _formKey2,
                                   child: Column(children: <Widget>[
@@ -265,6 +256,7 @@ class EditProfileState extends State<EditProfile> {
                                       height: 15.0,
                                     ),
                                     TextFormField(
+                                      controller: _newpasswordController,
                                       onChanged: (val) => newpassword = val,
                                       validator: (String? val) {
                                         if (val != null && val.isEmpty) {
@@ -289,11 +281,12 @@ class EditProfileState extends State<EditProfile> {
                                       height: 15.0,
                                     ),
                                     TextFormField(
-                                      validator: (String? val) {
-                                        if (val != null && val.isEmpty) {
-                                          return "Confirm new password field can't be empty";
-                                        }
-                                        return null;
+                                      controller: _repeatpasswordController,
+                                      validator: (value) {
+                                        return _newpasswordController.text ==
+                                                value
+                                            ? null
+                                            : "Please validate your entered password";
                                       },
                                       onChanged: (val) =>
                                           confirmnewpassword = val,
@@ -314,15 +307,15 @@ class EditProfileState extends State<EditProfile> {
                                       height: 15.0,
                                     ),
                                     TextFormField(
+                                      onChanged: (val) => password = val,
                                       validator: (String? val) {
                                         if (val != null && val.isEmpty) {
                                           return "Current password field can't be empty";
                                         }
                                         return null;
                                       },
-                                      onChanged: (val) => password = val,
                                       decoration: InputDecoration(
-                                          labelText: "Current Password",
+                                          labelText: "Current Password ",
                                           floatingLabelBehavior:
                                               FloatingLabelBehavior.always,
                                           labelStyle: TextStyle(
@@ -344,39 +337,9 @@ class EditProfileState extends State<EditProfile> {
                                                 setState(() => error =
                                                     'Changed successfully');
                                                 _changePassword(
-                                                    password, newpassword);
-                                              }
-
-                                              if (status == 1) {
-                                                showDialog(
-                                                    context: context,
-                                                    builder: (context) {
-                                                      Future.delayed(
-                                                          const Duration(
-                                                              seconds: 3), () {
-                                                        Navigator.of(context)
-                                                            .pop(true);
-                                                      });
-                                                      return const AlertDialog(
-                                                        title: Text(
-                                                            'Password successfully changed. Please log in again.'),
-                                                      );
-                                                    });
-                                              } else {
-                                                showDialog(
-                                                    context: context,
-                                                    builder: (context) {
-                                                      Future.delayed(
-                                                          const Duration(
-                                                              seconds: 3), () {
-                                                        Navigator.of(context)
-                                                            .pop(true);
-                                                      });
-                                                      return const AlertDialog(
-                                                        title: Text(
-                                                            'Wrong password. Please try again.'),
-                                                      );
-                                                    });
+                                                    password,
+                                                    _newpasswordController
+                                                        .text);
                                               }
                                             },
                                             style: ElevatedButton.styleFrom(
@@ -396,14 +359,19 @@ class EditProfileState extends State<EditProfile> {
   }
 
   void _changePassword(String currentPassword, String newPassword) async {
-    final user = FirebaseAuth.instance.currentUser;
-    final cred = EmailAuthProvider.credential(
-        email: user!.email.toString(), password: currentPassword);
+    User? user = FirebaseAuth.instance.currentUser;
+    String email = user!.email.toString();
+    print(currentPassword + newPassword);
+
+    final cred =
+        EmailAuthProvider.credential(email: email, password: currentPassword);
 
     user.reauthenticateWithCredential(cred).then((value) {
       user.updatePassword(newPassword).then((_) {
         //Success, do something
-        status = 1;
+        FirebaseAuth.instance.signOut();
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => Wrapper()));
       }).catchError((error) {
         //Error, show something
       });

@@ -68,6 +68,7 @@ class _InventoryPageState extends State<InventoryPage> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextField(
+                        autofocus: false,
                         onChanged: (value) {
                           setState(() {});
                         },
@@ -94,34 +95,38 @@ class _InventoryPageState extends State<InventoryPage> {
                                         child: Align(
                                             alignment: Alignment.center,
                                             child: ListTile(
-                                              title: Text(
-                                                  snapshot.data[index]
-                                                      .data()["Item Name"],
-                                                  style: TextStyle(
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                              trailing: Wrap(
-                                                children: [
-                                                  Text(
-                                                      snapshot.data[index]
-                                                          .data()["In Stock"]
-                                                          .toString(),
-                                                      style: TextStyle(
-                                                          fontSize: 20,
-                                                          fontWeight:
-                                                              FontWeight.bold))
-                                                ],
-                                              ),
-                                              onTap: () => Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          ItemDetailPage(
-                                                            itemInfo: snapshot
-                                                                .data[index],
-                                                          ))),
-                                            ))));
+                                                title: Text(
+                                                    snapshot.data[index]
+                                                        .data()["Item Name"],
+                                                    style: TextStyle(
+                                                        fontSize: 20,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                                trailing: Wrap(
+                                                  children: [
+                                                    Text(
+                                                        snapshot.data[index]
+                                                            .data()["In Stock"]
+                                                            .toString(),
+                                                        style: TextStyle(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold))
+                                                  ],
+                                                ),
+                                                onTap: () {
+                                                  editingController.clear();
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              ItemDetailPage(
+                                                                itemInfo:
+                                                                    snapshot.data[
+                                                                        index],
+                                                              )));
+                                                }))));
                               } else if (snapshot.data[index]["Item Name"]
                                   .toLowerCase()
                                   .contains(editingController.text)) {
@@ -132,83 +137,44 @@ class _InventoryPageState extends State<InventoryPage> {
                                         child: Align(
                                             alignment: Alignment.center,
                                             child: ListTile(
-                                              title: Text(
-                                                  snapshot.data[index]
-                                                      .data()["Item Name"],
-                                                  style: TextStyle(
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                              trailing: Wrap(
-                                                children: [
-                                                  Text(
-                                                      snapshot.data[index]
-                                                          .data()["In Stock"]
-                                                          .toString(),
-                                                      style: TextStyle(
-                                                          fontSize: 20,
-                                                          fontWeight:
-                                                              FontWeight.bold))
-                                                ],
-                                              ),
-                                              onTap: () => Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          ItemDetailPage(
-                                                            itemInfo: snapshot
-                                                                .data[index],
-                                                          ))),
-                                            ))));
+                                                title: Text(
+                                                    snapshot.data[index]
+                                                        .data()["Item Name"],
+                                                    style: TextStyle(
+                                                        fontSize: 20,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                                trailing: Wrap(
+                                                  children: [
+                                                    Text(
+                                                        snapshot.data[index]
+                                                            .data()["In Stock"]
+                                                            .toString(),
+                                                        style: TextStyle(
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold))
+                                                  ],
+                                                ),
+                                                onTap: () {
+                                                  editingController.clear();
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              ItemDetailPage(
+                                                                itemInfo:
+                                                                    snapshot.data[
+                                                                        index],
+                                                              )));
+                                                }))));
                               } else {
                                 return Container();
                               }
                             }))
                   ],
                 );
-                /*ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (_, index) {
-                      return Container(
-                          height: 80.0,
-                          child: Card(
-                            margin: EdgeInsets.all(10),
-                            child: Align(
-                                alignment: Alignment.center,
-                                child: ListTile(
-                                    dense: true,
-                                    title: Text(
-                                        snapshot.data[index]
-                                            .data()["Item Name"],
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold)),
-                                    trailing: Wrap(
-                                      children: [
-                                        Text(
-                                            snapshot.data[index]
-                                                .data()["In Stock"]
-                                                .toString(),
-                                            style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight:
-                                                    FontWeight.bold))
-                                      ],
-                                    ),
-                                    onTap: () => Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ItemDetailPage(
-                                                  itemInfo:
-                                                      snapshot.data[index],
-                                                ))))),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            elevation: 5,
-                          ));
-                    });*/
               }
             }),
         floatingActionButton: Column(
@@ -278,10 +244,13 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
               color: Colors.white,
             ),
             onPressed: () {
-              Navigator.pop(context);
-              /*
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => InventoryPage()));*/
+              Navigator.pushAndRemoveUntil<dynamic>(
+                context,
+                MaterialPageRoute<dynamic>(
+                  builder: (BuildContext context) => InventoryPage(),
+                ),
+                (route) => true,
+              );
             },
           ),
           actions: <Widget>[
@@ -290,8 +259,14 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
               onPressed: () async {
                 await DatabaseService(uid: AuthService().getCurrentUID())
                     .deleteItem(widget.itemInfo!.id);
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => InventoryPage()));
+                Navigator.pushAndRemoveUntil<dynamic>(
+                  context,
+                  MaterialPageRoute<dynamic>(
+                    builder: (BuildContext context) => InventoryPage(),
+                  ),
+                  (route) =>
+                      true, //if you want to disable back feature set to false
+                );
               },
             ),
           ],
@@ -399,16 +374,3 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                 ]))));
   }
 }
-
-
-/*
-floatingActionButton: FloatingActionButton.extended(
-            elevation: 0.0,
-            label: Text('Add Item'),
-            icon: Icon(Icons.add),
-            backgroundColor: Color(0xFFE57373),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => AddItemPage()));
-            })
-*/

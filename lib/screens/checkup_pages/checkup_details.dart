@@ -56,12 +56,12 @@ class CheckUpDetailState extends State<CheckUpDetail> {
             children: [
               Row(children: [
                 const Expanded(
-                    flex: 1,
+                    flex: 2,
                     child: Text("Patient Name",
                         style: TextStyle(
                             fontSize: 16.0, fontWeight: FontWeight.bold))),
                 Expanded(
-                    flex: 2,
+                    flex: 3,
                     child: Text(widget.patientName!,
                         style: const TextStyle(
                           fontSize: 16.0,
@@ -72,12 +72,12 @@ class CheckUpDetailState extends State<CheckUpDetail> {
               ),
               Row(children: [
                 const Expanded(
-                    flex: 1,
+                    flex: 2,
                     child: Text("Patient IC",
                         style: TextStyle(
                             fontSize: 16.0, fontWeight: FontWeight.bold))),
                 Expanded(
-                    flex: 2,
+                    flex: 3,
                     child: Text(widget.patientIC!,
                         style: const TextStyle(
                           fontSize: 16.0,
@@ -88,12 +88,12 @@ class CheckUpDetailState extends State<CheckUpDetail> {
               ),
               Row(children: [
                 const Expanded(
-                    flex: 1,
+                    flex: 2,
                     child: Text("Check Up Date",
                         style: TextStyle(
                             fontSize: 16.0, fontWeight: FontWeight.bold))),
                 Expanded(
-                    flex: 2,
+                    flex: 3,
                     child: Text(widget.date!,
                         style: const TextStyle(
                           fontSize: 16.0,
@@ -104,12 +104,12 @@ class CheckUpDetailState extends State<CheckUpDetail> {
               ),
               Row(children: [
                 const Expanded(
-                    flex: 1,
+                    flex: 2,
                     child: Text("Medications",
                         style: TextStyle(
                             fontSize: 16.0, fontWeight: FontWeight.bold))),
                 Expanded(
-                    flex: 2,
+                    flex: 3,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: textWidgetList,
@@ -120,12 +120,12 @@ class CheckUpDetailState extends State<CheckUpDetail> {
               ),
               Row(children: [
                 const Expanded(
-                    flex: 1,
+                    flex: 2,
                     child: Text("Description",
                         style: TextStyle(
                             fontSize: 16.0, fontWeight: FontWeight.bold))),
                 Expanded(
-                    flex: 2,
+                    flex: 3,
                     child: Text(widget.description!,
                         style: TextStyle(
                           fontSize: 16.0,

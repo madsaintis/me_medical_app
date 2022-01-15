@@ -1,6 +1,3 @@
-import 'package:me_medical_app/checkup_list.dart';
-import 'package:me_medical_app/patient_checkup.dart';
-
 import 'package:flutter/material.dart';
 
 class CheckUpDetail extends StatefulWidget {
@@ -29,7 +26,7 @@ class CheckUpDetailState extends State<CheckUpDetail> {
     if (textWidgetList.isEmpty) {
       for (int i = 0; i < widget.medicine.length; i++) {
         textWidgetList.add(Text(widget.medicine[i],
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16.0,
             )));
       }
@@ -37,7 +34,8 @@ class CheckUpDetailState extends State<CheckUpDetail> {
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: Text("Check Up Details", overflow: TextOverflow.ellipsis),
+          title:
+              const Text("Check Up Details", overflow: TextOverflow.ellipsis),
           backgroundColor: Colors.teal,
           elevation: 3,
           leading: IconButton(
@@ -46,8 +44,8 @@ class CheckUpDetailState extends State<CheckUpDetail> {
               color: Colors.white,
             ),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => CheckUpList()));
+              widget.medicine.clear();
+              Navigator.pop(context);
             },
           ),
         ),

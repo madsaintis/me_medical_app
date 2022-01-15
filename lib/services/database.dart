@@ -1,13 +1,10 @@
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:me_medical_app/stockList.dart';
+import 'package:me_medical_app/screens/inventory/stockList.dart';
 import 'package:me_medical_app/models/user.dart';
-import 'package:me_medical_app/services/auth.dart';
 
 class DatabaseService {
   final String uid;
+
   DatabaseService({required this.uid});
 
   // collection reference
@@ -86,9 +83,7 @@ class DatabaseService {
         .doc(uid)
         .collection('itemInfo')
         .doc(docID)
-        .update({
-      "In Stock": FieldValue.increment(-decrementStock),
-    });
+        .update({"In Stock": decrementStock});
   }
 
 //!maaaaaaaaa
@@ -107,14 +102,10 @@ class DatabaseService {
   }
 
   //update profile
-  Future updateProfile(
-      String name, String phone, String email, String location) async {
-    return await userCollection.doc(uid).update({
-      'Name': name,
-      'Phone': phone,
-      'Email': email,
-      'Clinic Location': location
-    });
+  Future updateProfile(String name, String phone, String location) async {
+    return await userCollection
+        .doc(uid)
+        .update({'Name': name, 'Phone': phone, 'Clinic Location': location});
   }
 
   //User data from snapshot

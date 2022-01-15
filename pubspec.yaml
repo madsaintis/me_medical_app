@@ -39,6 +39,10 @@ dependencies:
   provider: ^6.0.1
   firebase_core: ^1.10.0
   flutter_fab_dialer: ^0.1.1
+  dropdown_search: ^2.0.1
+  persistent_bottom_nav_bar: ^4.0.2
+  flutter_svg: ^1.0.1
+  google_fonts: ^2.2.0
 
 dev_dependencies:
   flutter_test:

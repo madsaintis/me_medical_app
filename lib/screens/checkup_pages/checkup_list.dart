@@ -48,7 +48,7 @@ class _CheckUpListState extends State<CheckUpList> {
           builder: (_, AsyncSnapshot snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
-                child: Text("Loading"),
+                child: CircularProgressIndicator(),
               );
             } else {
               return ListView.builder(
@@ -59,16 +59,17 @@ class _CheckUpListState extends State<CheckUpList> {
                         child: Text("Your inventory is empty :("),
                       );
                     }
-                    return Container(
+                    return Card(
                       child: ListTile(
-                          title:
-                              Text(snapshot.data[index].data()["Patient Name"]),
+                          title: Text(
+                              snapshot.data[index].data()["Patient Name"],
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold)),
                           trailing: Wrap(
                             children: [
-                              Text("Date: " +
-                                  snapshot.data[index]
-                                      .data()["Date"]
-                                      .toString())
+                              Text(snapshot.data[index]
+                                  .data()["Date"]
+                                  .toString())
                             ],
                           ),
                           onTap: () => Navigator.push(
@@ -87,8 +88,6 @@ class _CheckUpListState extends State<CheckUpList> {
                                         description: snapshot.data[index]
                                             .data()["Description"],
                                       )))),
-                      decoration: const BoxDecoration(
-                          border: Border(bottom: BorderSide())),
                     );
                   });
             }

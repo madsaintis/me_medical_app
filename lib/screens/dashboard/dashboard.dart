@@ -2,22 +2,26 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:me_medical_app/screens/profile_pages/view_profile.dart';
-import 'package:me_medical_app/screens/inventory/inventory.dart';
-import 'package:me_medical_app/screens/checkup_pages/patient_checkup.dart';
-import 'package:me_medical_app/screens/patients_info/patient_list.dart';
+import 'package:me_medical_app/l10n/app_localization.dart';
 import 'package:me_medical_app/services/wrapper.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
-// ignore: use_key_in_widget_constructors
-class Dashboard extends StatelessWidget {
+class Dashboard extends StatefulWidget {
+  final PersistentTabController persistentTabController;
+
+  Dashboard({required this.persistentTabController});
+
+  @override
+  _DashboardState createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.brown[50],
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
-          centerTitle: true,
-          title: Text('Dashboard'),
-          backgroundColor: Colors.blue[400],
+          bottomOpacity: 0.0,
           elevation: 0.0,
           leading: IconButton(
             icon: Icon(
@@ -25,8 +29,9 @@ class Dashboard extends StatelessWidget {
               color: Colors.white,
             ),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => ViewProfilePage()));
+              setState(() {
+                widget.persistentTabController.jumpToTab(4);
+              });
             },
           ),
           actions: <Widget>[
@@ -47,74 +52,174 @@ class Dashboard extends StatelessWidget {
             ),
           ],
         ),
-        body: Center(
-            child: ListView(
-          padding: EdgeInsets.all(50.0),
-          children: <Widget>[
-            TextButton.icon(
-              icon: Icon(Icons.person),
-              label: Text('Patient Check Up',
-                  style: TextStyle(color: Colors.white)),
-              style: TextButton.styleFrom(
-                primary: Colors.white,
-                backgroundColor: Colors.teal,
-              ),
-              //later implement the jump page function
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => PatientCheckUp()));
-              },
-            ),
-            SizedBox(
-              height: 20.0,
-            ),
-            InkWell(
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => PatientListPage()));
-              }, // Handle your callback
-              child: Ink(
-                height: 100,
-                width: 100,
-                color: Colors.blue,
-                child: TextButton.icon(
-                  icon: Icon(Icons.list_alt),
-                  label: Text('Patient Information',
+        body: Container(
+            decoration: BoxDecoration(color: Colors.indigo),
+            child: Column(children: [
+              Container(
+                padding: EdgeInsets.all(30.0),
+                height: 300.0,
+                child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      AppLocalization.of(context)
+                          .getTranslatedValue("dashboard")
+                          .toString(),
+                      textAlign: TextAlign.left,
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w500,
-                      )),
-                  style: TextButton.styleFrom(
-                    primary: Colors.white,
-                    backgroundColor: Colors.teal,
-                  ),
-                  //later implement the jump page function
-                  onPressed: () {},
-                ),
+                          fontSize: 30.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                    )),
               ),
-            ),
-            SizedBox(
-              height: 20.0,
-            ),
-            TextButton.icon(
-              icon: Icon(Icons.medication),
-              label: Text('Medical Inventory',
-                  style: TextStyle(color: Colors.white)),
-              style: TextButton.styleFrom(
-                primary: Colors.white,
-                backgroundColor: Colors.teal,
-              ),
-              //later implement the jump page function
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => InventoryPage()));
-              },
-            ),
-            SizedBox(
-              height: 20.0,
-            ),
-          ],
-        )));
+              Expanded(
+                  child: Container(
+                      padding: EdgeInsets.all(30.0),
+                      decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(30),
+                              topRight: Radius.circular(30))),
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                    flex: 2,
+                                    child: SizedBox(
+                                        height: 150,
+                                        width: 150,
+                                        child: TextButton(
+                                            style: TextButton.styleFrom(
+                                              primary: Colors.black,
+                                              backgroundColor: Colors.white,
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                widget.persistentTabController
+                                                    .jumpToTab(1);
+                                              });
+                                            }, // Handle your callback
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  Icons.personal_injury_sharp,
+                                                  size: 50,
+                                                ),
+                                                SizedBox(
+                                                  height: 15,
+                                                ),
+                                                Text(
+                                                  AppLocalization.of(context)
+                                                      .getTranslatedValue(
+                                                          "patientcheck")
+                                                      .toString(),
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                      fontSize: 20.0,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                )
+                                              ],
+                                            )))),
+                                SizedBox(
+                                  width: 30.0,
+                                ),
+                                Expanded(
+                                    flex: 2,
+                                    child: Container(
+                                        height: 150,
+                                        width: 150,
+                                        child: TextButton(
+                                            style: TextButton.styleFrom(
+                                              primary: Colors.black,
+                                              backgroundColor: Colors.white,
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                widget.persistentTabController
+                                                    .jumpToTab(1);
+                                              });
+                                            }, // Handle your callback
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  Icons.sick,
+                                                  size: 50,
+                                                ),
+                                                SizedBox(
+                                                  height: 15,
+                                                ),
+                                                Text(
+                                                  AppLocalization.of(context)
+                                                      .getTranslatedValue(
+                                                          "patientInfo")
+                                                      .toString(),
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                      fontSize: 20.0,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                )
+                                              ],
+                                            )))),
+                              ],
+                            ),
+                            SizedBox(
+                              width: 20.0,
+                              height: 40.0,
+                            ),
+                            Expanded(
+                                flex: 1,
+                                child: SizedBox(
+                                    height: 150,
+                                    width: 150,
+                                    child: TextButton(
+                                        style: TextButton.styleFrom(
+                                          primary: Colors.black,
+                                          backgroundColor: Colors.white,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            widget.persistentTabController
+                                                .jumpToTab(3);
+                                          });
+                                        }, // Handle your callback
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.medication,
+                                              size: 50,
+                                            ),
+                                            SizedBox(
+                                              height: 15,
+                                            ),
+                                            Text(
+                                              AppLocalization.of(context)
+                                                  .getTranslatedValue(
+                                                      "medicalIn")
+                                                  .toString(),
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  fontSize: 20.0,
+                                                  fontWeight: FontWeight.bold),
+                                            )
+                                          ],
+                                        )))),
+                          ])))
+            ])));
   }
 }

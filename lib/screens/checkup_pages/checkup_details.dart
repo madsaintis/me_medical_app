@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:me_medical_app/l10n/app_localization.dart';
 
 class CheckUpDetail extends StatefulWidget {
   String? patientName;
@@ -8,11 +9,13 @@ class CheckUpDetail extends StatefulWidget {
   String? description;
 
   CheckUpDetail(
-      {this.patientName,
+      {Key? key,
+      this.patientName,
       this.patientIC,
       this.date,
       required this.medicine,
-      this.description});
+      this.description})
+      : super(key: key);
 
   @override
   CheckUpDetailState createState() => CheckUpDetailState();
@@ -34,9 +37,12 @@ class CheckUpDetailState extends State<CheckUpDetail> {
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title:
-              const Text("Check Up Details", overflow: TextOverflow.ellipsis),
-          backgroundColor: Colors.teal,
+          title: Text(
+              AppLocalization.of(context)
+                  .getTranslatedValue("checkUpDetails")
+                  .toString(),
+              overflow: TextOverflow.ellipsis),
+          backgroundColor: Colors.indigo,
           elevation: 3,
           leading: IconButton(
             icon: const Icon(
@@ -50,87 +56,136 @@ class CheckUpDetailState extends State<CheckUpDetail> {
           ),
         ),
         body: Container(
+          decoration: BoxDecoration(
+              border: Border.all(color: Colors.black),
+              borderRadius: BorderRadius.circular(5.0)),
           padding: const EdgeInsets.only(
               left: 30.0, right: 20.0, top: 40.0, bottom: 20.0),
           child: Column(
             children: [
-              Row(children: [
-                const Expanded(
-                    flex: 2,
-                    child: Text("Patient Name",
-                        style: TextStyle(
-                            fontSize: 16.0, fontWeight: FontWeight.bold))),
-                Expanded(
-                    flex: 3,
-                    child: Text(widget.patientName!,
-                        style: const TextStyle(
-                          fontSize: 16.0,
-                        ))),
-              ]),
-              const SizedBox(
-                height: 40,
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black),
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+                child: Row(children: [
+                  Expanded(
+                      flex: 3,
+                      child: Text(
+                          AppLocalization.of(context)
+                              .getTranslatedValue("patientName")
+                              .toString(),
+                          style: const TextStyle(
+                              fontSize: 18.0, fontWeight: FontWeight.bold))),
+                  Expanded(
+                      flex: 3,
+                      child: Text(widget.patientName!,
+                          style: const TextStyle(
+                            fontSize: 16.0,
+                          )))
+                ]),
               ),
-              Row(children: [
-                const Expanded(
-                    flex: 2,
-                    child: Text("Patient IC",
-                        style: TextStyle(
-                            fontSize: 16.0, fontWeight: FontWeight.bold))),
-                Expanded(
-                    flex: 3,
-                    child: Text(widget.patientIC!,
-                        style: const TextStyle(
-                          fontSize: 16.0,
-                        ))),
-              ]),
               const SizedBox(
-                height: 40,
+                height: 20,
               ),
-              Row(children: [
-                const Expanded(
-                    flex: 2,
-                    child: Text("Check Up Date",
-                        style: TextStyle(
-                            fontSize: 16.0, fontWeight: FontWeight.bold))),
-                Expanded(
-                    flex: 3,
-                    child: Text(widget.date!,
-                        style: const TextStyle(
-                          fontSize: 16.0,
-                        ))),
-              ]),
+              Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: Row(children: [
+                    Expanded(
+                        flex: 3,
+                        child: Text(
+                            AppLocalization.of(context)
+                                .getTranslatedValue("patientID")
+                                .toString(),
+                            style: const TextStyle(
+                                fontSize: 18.0, fontWeight: FontWeight.bold))),
+                    Expanded(
+                        flex: 3,
+                        child: Text(widget.patientIC!,
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                            ))),
+                  ])),
               const SizedBox(
-                height: 40,
+                height: 20,
               ),
-              Row(children: [
-                const Expanded(
-                    flex: 2,
-                    child: Text("Medications",
-                        style: TextStyle(
-                            fontSize: 16.0, fontWeight: FontWeight.bold))),
-                Expanded(
-                    flex: 3,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: textWidgetList,
-                    )),
-              ]),
+              Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: Row(children: [
+                    Expanded(
+                        flex: 3,
+                        child: Text(
+                            AppLocalization.of(context)
+                                .getTranslatedValue("checkUpDate")
+                                .toString(),
+                            style: const TextStyle(
+                                fontSize: 18.0, fontWeight: FontWeight.bold))),
+                    Expanded(
+                        flex: 3,
+                        child: Text(widget.date!,
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                            ))),
+                  ])),
               const SizedBox(
-                height: 40,
+                height: 20,
               ),
-              Row(children: [
-                const Expanded(
-                    flex: 2,
-                    child: Text("Description",
-                        style: TextStyle(
-                            fontSize: 16.0, fontWeight: FontWeight.bold))),
-                Expanded(
-                    flex: 3,
-                    child: Text(widget.description!,
-                        style: TextStyle(
-                          fontSize: 16.0,
-                        ))),
-              ]),
+              Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: Row(children: [
+                    Expanded(
+                        flex: 3,
+                        child: Text(
+                            AppLocalization.of(context)
+                                .getTranslatedValue("medication")
+                                .toString(),
+                            style: const TextStyle(
+                                fontSize: 18.0, fontWeight: FontWeight.bold))),
+                    Expanded(
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: textWidgetList,
+                        )),
+                  ])),
+              const SizedBox(
+                height: 20,
+              ),
+              Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: Row(children: [
+                    Expanded(
+                        flex: 3,
+                        child: Text(
+                            AppLocalization.of(context)
+                                .getTranslatedValue("description")
+                                .toString(),
+                            style: const TextStyle(
+                                fontSize: 16.0, fontWeight: FontWeight.bold))),
+                    Expanded(
+                        flex: 3,
+                        child: Text(widget.description!,
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                            ))),
+                  ])),
             ],
           ),
         ));

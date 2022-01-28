@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:me_medical_app/screens/inventory/stockList.dart';
 import 'package:me_medical_app/models/user.dart';
 
 class DatabaseService {
@@ -37,9 +36,7 @@ class DatabaseService {
 
   //update item
   Future updateItemInventory(
-      String itemName, String buyPrice, String sellPrice, String stock) async {
-    //!maaaaaaaaa
-    updateStock(itemName, int.parse(buyPrice), int.parse(stock));
+      String itemName, double buyPrice, double sellPrice, int stock) async {
     return await itemCollection.doc(uid).collection('itemInfo').add({
       'Item Name': itemName,
       'Buy Price': buyPrice,
@@ -102,19 +99,13 @@ class DatabaseService {
         .update({"In Stock": decrementStock});
   }
 
-//!maaaaaaaaa
-  Future updateStock(String itemName, int buyPrice, int stock) async {
-    return await stockCollection.doc(uid).set({
-      'Item Name': itemName,
-      'Buy Price': buyPrice,
-      'In Stock': stock,
-      'User ID': uid,
-    });
-  }
-
-  //!maaaaaaaaa
-  Future deleteStock() async {
-    return await stockCollection.doc(uid).delete();
+  //Add stock based on add stock page
+  Future updateStock(String? docID, int incrementStock) async {
+    return await itemCollection
+        .doc(uid)
+        .collection('itemInfo')
+        .doc(docID)
+        .update({"In Stock": FieldValue.increment(incrementStock)});
   }
 
   //update profile
@@ -122,6 +113,31 @@ class DatabaseService {
     return await userCollection
         .doc(uid)
         .update({'Name': name, 'Phone': phone, 'Clinic Location': location});
+  }
+
+  Future updateItemPurchase(
+      String itemID, String date, String qty, String totalPrice) async {
+    return await itemCollection
+        .doc(uid)
+        .collection('itemInfo')
+        .doc(itemID)
+        .collection('itemPurchaseInfo')
+        .add({'Date': date, 'Quantity': qty, 'Price': totalPrice});
+  }
+
+  //update item information
+  Future updateItemInformation(String docID, String itemName, double buyPrice,
+      double sellPrice, int stock) async {
+    return await itemCollection
+        .doc(uid)
+        .collection('itemInfo')
+        .doc(docID)
+        .update({
+      'Item Name': itemName,
+      'Buy Price': buyPrice,
+      'Sell Price': sellPrice,
+      'In Stock': stock,
+    });
   }
 
   //User data from snapshot
@@ -145,24 +161,34 @@ class DatabaseService {
         .delete();
   }
 
+  //delete item
+  Future deletePatient(String patientID) async {
+    await patientCollection
+        .doc(uid)
+        .collection('patientInfo')
+        .doc(patientID)
+        .delete();
+
+    var snapshot = await checkUpCollection
+        .doc(uid)
+        .collection('checkUpInfo')
+        .where('IC', isEqualTo: patientID)
+        .get();
+
+    for (var doc in snapshot.docs) {
+      await doc.reference.delete();
+    }
+  }
+
+  //Change user language
+  Future changeLanguage(String language) async {
+    return await userCollection.doc(uid).update({
+      'language': language,
+    });
+  }
+
   //get user data
   Stream<UserData> get userData {
     return userCollection.doc(uid).snapshots().map(_userDataFromSnapshot);
-  }
-
-//!maaaaaaaa
-  List<Stock> _stockListFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.map((doc) {
-      var a = doc.data() as Map;
-      return Stock(
-          name: a['Item Name'] ?? '',
-          inStock: a['In Stock'] ?? 0,
-          buyPrice: a['Buy Price'] ?? 0);
-    }).toList();
-  }
-
-//!maaaaaaa
-  Stream<List<Stock>> get stocks {
-    return stockCollection.snapshots().map(_stockListFromSnapshot);
   }
 }

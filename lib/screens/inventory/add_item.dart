@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:me_medical_app/l10n/app_localization.dart';
 import 'package:me_medical_app/screens/inventory/inventory.dart';
 import 'package:me_medical_app/services/auth.dart';
 import 'package:flutter/services.dart';
@@ -25,8 +27,10 @@ class _AddItemPageState extends State<AddItemPage> {
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: Text("Add Item"),
-          backgroundColor: Colors.teal,
+          title: Text(AppLocalization.of(context)
+              .getTranslatedValue("addItem")
+              .toString()),
+          backgroundColor: Colors.indigo,
           elevation: 3,
           leading: IconButton(
             icon: Icon(
@@ -34,8 +38,7 @@ class _AddItemPageState extends State<AddItemPage> {
               color: Colors.white,
             ),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => InventoryPage()));
+              Navigator.pop(context);
             },
           ),
         ),
@@ -51,20 +54,40 @@ class _AddItemPageState extends State<AddItemPage> {
                     },
                     validator: (String? val) {
                       if (val != null && val.isEmpty) {
-                        return "Item name field can't be empty";
+                        return AppLocalization.of(context)
+                            .getTranslatedValue("medicineField")
+                            .toString();
                       }
                       return null;
                     },
                     decoration: InputDecoration(
-                        labelText: "Item Name",
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                        labelStyle: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue[200]),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        )),
+                      fillColor: Colors.white,
+                      filled: true,
+                      prefixIcon: Icon(
+                        Icons.medication,
+                      ),
+                      hintText: AppLocalization.of(context)
+                          .getTranslatedValue("mName")
+                          .toString(),
+                      floatingLabelBehavior: FloatingLabelBehavior.always,
+                      labelStyle: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue[200]),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.blue,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.indigo,
+                          width: 2.0,
+                        ),
+                      ),
+                    ),
                   ),
                   SizedBox(
                     height: 15.0,
@@ -77,7 +100,9 @@ class _AddItemPageState extends State<AddItemPage> {
                     keyboardType: TextInputType.number,
                     validator: (String? val) {
                       if (val != null && val.isEmpty) {
-                        return "Buy price field can't be empty";
+                        return AppLocalization.of(context)
+                            .getTranslatedValue("buyPriceField")
+                            .toString();
                       }
                       return null;
                     },
@@ -85,15 +110,34 @@ class _AddItemPageState extends State<AddItemPage> {
                       setState(() => buyPrice = val);
                     },
                     decoration: InputDecoration(
-                        labelText: "Buy Price",
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                        labelStyle: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue[200]),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        )),
+                      fillColor: Colors.white,
+                      filled: true,
+                      prefixIcon: Icon(
+                        Icons.attach_money,
+                        color: Colors.green,
+                      ),
+                      hintText: AppLocalization.of(context)
+                          .getTranslatedValue("buyPrice")
+                          .toString(),
+                      floatingLabelBehavior: FloatingLabelBehavior.always,
+                      labelStyle: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue[200]),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.blue,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.indigo,
+                          width: 2.0,
+                        ),
+                      ),
+                    ),
                   ),
                   SizedBox(
                     height: 15.0,
@@ -101,7 +145,9 @@ class _AddItemPageState extends State<AddItemPage> {
                   TextFormField(
                     validator: (String? val) {
                       if (val != null && val.isEmpty) {
-                        return "Sell price field can't be empty";
+                        return AppLocalization.of(context)
+                            .getTranslatedValue("sellPriceField")
+                            .toString();
                       }
                       return null;
                     },
@@ -114,15 +160,34 @@ class _AddItemPageState extends State<AddItemPage> {
                       setState(() => sellPrice = val);
                     },
                     decoration: InputDecoration(
-                        labelText: "Sell Price",
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                        labelStyle: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue[200]),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        )),
+                      fillColor: Colors.white,
+                      filled: true,
+                      prefixIcon: Icon(
+                        Icons.attach_money,
+                        color: Colors.red,
+                      ),
+                      hintText: AppLocalization.of(context)
+                          .getTranslatedValue("sellPrice")
+                          .toString(),
+                      floatingLabelBehavior: FloatingLabelBehavior.always,
+                      labelStyle: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue[200]),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.blue,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.indigo,
+                          width: 2.0,
+                        ),
+                      ),
+                    ),
                   ),
                   SizedBox(
                     height: 15.0,
@@ -130,7 +195,9 @@ class _AddItemPageState extends State<AddItemPage> {
                   TextFormField(
                     validator: (String? val) {
                       if (val != null && val.isEmpty) {
-                        return "Item stock field can't be empty";
+                        return AppLocalization.of(context)
+                            .getTranslatedValue("stockField")
+                            .toString();
                       }
                       return null;
                     },
@@ -140,34 +207,56 @@ class _AddItemPageState extends State<AddItemPage> {
                       setState(() => inStock = val);
                     },
                     decoration: InputDecoration(
-                        labelText: "In Stock",
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                        labelStyle: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue[200]),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        )),
+                      fillColor: Colors.white,
+                      filled: true,
+                      prefixIcon: Icon(CupertinoIcons.cube_box_fill),
+                      hintText: AppLocalization.of(context)
+                          .getTranslatedValue("inStock")
+                          .toString(),
+                      floatingLabelBehavior: FloatingLabelBehavior.always,
+                      labelStyle: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue[200]),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.blue,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.indigo,
+                          width: 2.0,
+                        ),
+                      ),
+                    ),
                   ),
                   SizedBox(
                     height: 20.0,
                   ),
                   Center(
                       child: ElevatedButton(
-                          child: Text("Add Item"),
+                          child: Text(AppLocalization.of(context)
+                              .getTranslatedValue("addItem")
+                              .toString()),
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              _auth.addItem(
-                                  itemName, buyPrice, sellPrice, inStock);
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => InventoryPage()));
+                              _auth.addItem(itemName, double.parse(buyPrice),
+                                  double.parse(sellPrice), int.parse(inStock));
+                              Navigator.of(context).pushAndRemoveUntil(
+                                CupertinoPageRoute(
+                                  builder: (BuildContext context) {
+                                    return InventoryPage();
+                                  },
+                                ),
+                                (_) => false,
+                              );
                             }
                           },
-                          style:
-                              ElevatedButton.styleFrom(primary: Colors.amber))),
+                          style: ElevatedButton.styleFrom(
+                              primary: Colors.blueAccent))),
                   SizedBox(
                     height: 25.0,
                   ),

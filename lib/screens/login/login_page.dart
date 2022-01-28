@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors
 
 import 'package:flutter/material.dart';
+import 'package:me_medical_app/l10n/app_localization.dart';
 import 'package:me_medical_app/services/auth.dart';
 
 class SignIn extends StatefulWidget {
@@ -21,36 +22,6 @@ class _SignInState extends State<SignIn> {
 
   @override
   Widget build(BuildContext context) {
-    /*
-    //define usename input
-    final username = TextFormField(
-      keyboardType: TextInputType.emailAddress,
-      autofocus: false,
-      onChanged: (val) {},
-      decoration: InputDecoration(
-          hintText: 'Email',
-          contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(32),
-            gapPadding: 5,
-          )),
-    );
-
-  
-    //define the password
-    final password = TextFormField(
-      obscureText: true,
-      autofocus: false,
-      decoration: InputDecoration(
-          hintText: 'Password',
-          contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(32),
-            gapPadding: 5,
-          )),
-    );
-    */
-
     return Scaffold(
         backgroundColor: Colors.white,
         body: Center(
@@ -74,7 +45,9 @@ class _SignInState extends State<SignIn> {
                     TextFormField(
                       validator: (String? val) {
                         if (val != null && val.isEmpty) {
-                          return "Please fill email field";
+                          return AppLocalization.of(context)
+                              .getTranslatedValue("emailField")
+                              .toString();
                         }
                         return null;
                       },
@@ -82,7 +55,9 @@ class _SignInState extends State<SignIn> {
                         setState(() => email = val);
                       },
                       decoration: InputDecoration(
-                          hintText: 'Email',
+                          hintText: AppLocalization.of(context)
+                              .getTranslatedValue("email")
+                              .toString(),
                           contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(32),
@@ -93,7 +68,9 @@ class _SignInState extends State<SignIn> {
                     TextFormField(
                       validator: (String? val) {
                         if (val != null && val.isEmpty) {
-                          return "Please fill password field";
+                          return AppLocalization.of(context)
+                              .getTranslatedValue("passwordField")
+                              .toString();
                         }
                         return null;
                       },
@@ -102,34 +79,23 @@ class _SignInState extends State<SignIn> {
                         setState(() => password = val);
                       },
                       decoration: InputDecoration(
-                          hintText: 'Password',
+                          hintText: AppLocalization.of(context)
+                              .getTranslatedValue("password")
+                              .toString(),
                           contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(32),
                             gapPadding: 5,
                           )),
                     ),
-                    SizedBox(height: 10.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            widget.toggleView();
-                          },
-                          child: Text(
-                            'Register',
-                            style: TextStyle(color: Colors.blue, fontSize: 12),
-                            textAlign: TextAlign.right,
-                          ),
-                        )
-                      ],
-                    ),
+                    SizedBox(height: 30.0),
                     ElevatedButton(
-                        child: Text('Sign In',
+                        child: Text(
+                            AppLocalization.of(context)
+                                .getTranslatedValue("login")
+                                .toString(),
                             style: TextStyle(color: Colors.white)),
-                        style: ElevatedButton.styleFrom(
-                            primary: Colors.lightBlueAccent),
+                        style: ElevatedButton.styleFrom(primary: Colors.indigo),
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             dynamic result = await _auth.logIn(email, password);
@@ -138,8 +104,30 @@ class _SignInState extends State<SignIn> {
                             }
                           }
                         }),
-                    SizedBox(height: 20.0),
+                    SizedBox(height: 10.0),
                     Text(error, style: TextStyle(color: Colors.red)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Don't have an account?"),
+                        SizedBox(width: 20.0),
+                        TextButton(
+                          onPressed: () {
+                            widget.toggleView();
+                          },
+                          child: Text(
+                            AppLocalization.of(context)
+                                .getTranslatedValue("register")
+                                .toString(),
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.right,
+                          ),
+                        )
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -166,7 +154,7 @@ class LogoWord extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
         child: Text(
-      "Login",
+      "Easy Clinic",
       style: TextStyle(
         color: Colors.black87,
         fontSize: 36,

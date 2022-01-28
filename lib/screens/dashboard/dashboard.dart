@@ -143,7 +143,7 @@ class _DashboardState extends State<Dashboard> {
                                             onPressed: () {
                                               setState(() {
                                                 widget.persistentTabController
-                                                    .jumpToTab(1);
+                                                    .jumpToTab(2);
                                               });
                                             }, // Handle your callback
                                             child: Column(

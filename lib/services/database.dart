@@ -1,4 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:logger/logger.dart';
+import 'package:me_medical_app/screens/dashboard/chart.dart';
+import 'package:me_medical_app/screens/inventory/stockList.dart';
 import 'package:me_medical_app/models/user.dart';
 
 class DatabaseService {
@@ -22,6 +25,9 @@ class DatabaseService {
   final CollectionReference stockCollection =
       FirebaseFirestore.instance.collection('stocks');
 
+  final CollectionReference incomeCollection =
+      FirebaseFirestore.instance.collection('income');
+
   Future updateUserData(String name, String phone, String email,
       String password, String location) async {
     return await userCollection.doc(uid).set({
@@ -36,7 +42,9 @@ class DatabaseService {
 
   //update item
   Future updateItemInventory(
-      String itemName, double buyPrice, double sellPrice, int stock) async {
+      String itemName, String buyPrice, String sellPrice, String stock) async {
+    //!maaaaaaaaa
+    updateStock(itemName, int.parse(buyPrice), int.parse(stock));
     return await itemCollection.doc(uid).collection('itemInfo').add({
       'Item Name': itemName,
       'Buy Price': buyPrice,
@@ -92,6 +100,16 @@ class DatabaseService {
 
   // Decrement medicine stock after check up
   Future updateStockAfterCheckUp(String? docID, int decrementStock) async {
+    //!
+    var soldMed =
+        await itemCollection.doc(uid).collection('itemInfo').doc(docID).get();
+
+    final int price = int.parse(soldMed.data()?["Sell Price"]);
+    final int inStock = int.parse(soldMed.data()?["In Stock"]);
+    final int medQuantity = inStock - decrementStock;
+    final double medPrice = (price * medQuantity).toDouble();
+    updateIncome(medPrice);
+
     return await itemCollection
         .doc(uid)
         .collection('itemInfo')
@@ -99,13 +117,19 @@ class DatabaseService {
         .update({"In Stock": decrementStock});
   }
 
-  //Add stock based on add stock page
-  Future updateStock(String? docID, int incrementStock) async {
-    return await itemCollection
-        .doc(uid)
-        .collection('itemInfo')
-        .doc(docID)
-        .update({"In Stock": FieldValue.increment(incrementStock)});
+//!maaaaaaaaa
+  Future updateStock(String itemName, int buyPrice, int stock) async {
+    return await stockCollection.doc(uid).set({
+      'Item Name': itemName,
+      'Buy Price': buyPrice,
+      'In Stock': stock,
+      'User ID': uid,
+    });
+  }
+
+  //!maaaaaaaaa
+  Future deleteStock() async {
+    return await stockCollection.doc(uid).delete();
   }
 
   //update profile
@@ -113,31 +137,6 @@ class DatabaseService {
     return await userCollection
         .doc(uid)
         .update({'Name': name, 'Phone': phone, 'Clinic Location': location});
-  }
-
-  Future updateItemPurchase(
-      String itemID, String date, String qty, String totalPrice) async {
-    return await itemCollection
-        .doc(uid)
-        .collection('itemInfo')
-        .doc(itemID)
-        .collection('itemPurchaseInfo')
-        .add({'Date': date, 'Quantity': qty, 'Price': totalPrice});
-  }
-
-  //update item information
-  Future updateItemInformation(String docID, String itemName, double buyPrice,
-      double sellPrice, int stock) async {
-    return await itemCollection
-        .doc(uid)
-        .collection('itemInfo')
-        .doc(docID)
-        .update({
-      'Item Name': itemName,
-      'Buy Price': buyPrice,
-      'Sell Price': sellPrice,
-      'In Stock': stock,
-    });
   }
 
   //User data from snapshot
@@ -161,34 +160,74 @@ class DatabaseService {
         .delete();
   }
 
-  //delete item
-  Future deletePatient(String patientID) async {
-    await patientCollection
-        .doc(uid)
-        .collection('patientInfo')
-        .doc(patientID)
-        .delete();
-
-    var snapshot = await checkUpCollection
-        .doc(uid)
-        .collection('checkUpInfo')
-        .where('IC', isEqualTo: patientID)
-        .get();
-
-    for (var doc in snapshot.docs) {
-      await doc.reference.delete();
-    }
-  }
-
-  //Change user language
-  Future changeLanguage(String language) async {
-    return await userCollection.doc(uid).update({
-      'language': language,
-    });
-  }
-
   //get user data
   Stream<UserData> get userData {
     return userCollection.doc(uid).snapshots().map(_userDataFromSnapshot);
+  }
+
+//!maaaaaaaa
+  List<Stock> _stockListFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((doc) {
+      var a = doc.data() as Map;
+      return Stock(
+          name: a['Item Name'] ?? '',
+          inStock: a['In Stock'] ?? 0,
+          buyPrice: a['Buy Price'] ?? 0);
+    }).toList();
+  }
+
+//!maaaaaaa
+  Stream<List<Stock>> get stocks {
+    return stockCollection.snapshots().map(_stockListFromSnapshot);
+  }
+
+  //! ma
+
+  // ChartData _profitDataFromSnapshot(DocumentSnapshot snapshot) {
+  //   return ChartData(day: snapshot['date'], income: snapshot['profit']);
+  // }
+//! ma
+  List<ChartData> _profitListFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((doc) {
+      var a = doc.data() as Map;
+      return ChartData(
+        month: a['date'] ?? '',
+        income: a['profit'].round() ?? 0.0,
+      );
+    }).toList();
+  }
+
+//! ma
+  Stream<List<ChartData>> get profits {
+    return incomeCollection
+        .doc(uid)
+        .collection('profit')
+        .snapshots()
+        .map(_profitListFromSnapshot);
+  }
+
+//! ma
+  Future updateIncome(double newProfit) async {
+    DateTime now = new DateTime.now();
+    DateTime date = new DateTime(now.year, now.month, now.day);
+
+    var currProfitSnapshot = await FirebaseFirestore.instance
+        .collection('income')
+        .doc(uid)
+        .collection('profit')
+        .doc(date.toString())
+        .get();
+
+    final double currProfit = currProfitSnapshot.data()?['profit'] ?? 0.0;
+    newProfit += currProfit;
+
+    return await incomeCollection
+        .doc(uid)
+        .collection('profit')
+        .doc(date.toString())
+        .set({
+      'profit': newProfit,
+      'date': date,
+    });
   }
 }

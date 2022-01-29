@@ -1,13 +1,15 @@
 // ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:me_medical_app/l10n/app_localization.dart';
+import 'package:me_medical_app/screens/checkup_pages/add_patient.dart';
 import 'package:me_medical_app/screens/checkup_pages/checkup_details.dart';
 import 'package:intl/intl.dart';
 import 'package:me_medical_app/screens/checkup_pages/checkup_list.dart';
 import 'package:me_medical_app/services/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:me_medical_app/screens/dashboard/dashboard.dart';
 import 'package:me_medical_app/services/database.dart';
 
 // ignore: use_key_in_widget_constructors
@@ -32,18 +34,24 @@ class PatientCheckUpState extends State<PatientCheckUp> {
       .doc(AuthService().getCurrentUID())
       .collection('patientInfo')
       .snapshots();
+//!
+  final Stream<QuerySnapshot> incomeStream = FirebaseFirestore.instance
+      .collection('income')
+      .doc(AuthService().getCurrentUID())
+      .collection('profits')
+      .snapshots();
 
-  final _formKey = GlobalKey<FormState>();
+  List<DropdownMenuItem> patients = [];
+  List<DropdownMenuItem> items = [];
 
+//!
+  double newProfit = 0;
   String? description = "";
   String? value = "Not Available";
   String? selectedPatient;
   String? patientIC;
   String? patientName;
   String? patientHint;
-  bool error = false;
-  List<DropdownMenuItem> patients = [];
-  List<DropdownMenuItem> items = [];
   List<CartItem> cart = [];
   List<String> medicine = [];
   List<String> medName = [];
@@ -58,11 +66,19 @@ class PatientCheckUpState extends State<PatientCheckUp> {
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
           centerTitle: true,
-          title: Text(
-            AppLocalization.of(context).getTranslatedValue("pCheck").toString(),
-          ),
-          backgroundColor: Colors.indigo,
+          title: Text("Patient Check Up"),
+          backgroundColor: Colors.teal,
           elevation: 3,
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => Dashboard()));
+            },
+          ),
         ),
         body: StreamBuilder<QuerySnapshot>(
             stream: itemStream,
@@ -70,8 +86,6 @@ class PatientCheckUpState extends State<PatientCheckUp> {
               return StreamBuilder<QuerySnapshot>(
                   stream: patientStream,
                   builder: (context, snapshot2) {
-                    items.clear();
-                    patients.clear();
                     if (!snapshot.hasData || !snapshot2.hasData) {
                       return Center(
                         child: CupertinoActivityIndicator(),
@@ -99,13 +113,9 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                         }
                       }
                       if (snapshot2.data!.size == 0) {
-                        patientHint = AppLocalization.of(context)
-                            .getTranslatedValue("noP")
-                            .toString();
+                        patientHint = "No patients found";
                       } else {
-                        patientHint = AppLocalization.of(context)
-                            .getTranslatedValue("selectPatient")
-                            .toString();
+                        patientHint = "Select a patient";
                         if (patients.isEmpty) {
                           for (int i = 0;
                               i < snapshot2.data!.docs.length;
@@ -133,10 +143,7 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                     alignment: Alignment.topLeft,
                                     padding: EdgeInsets.only(
                                         left: 30.0, top: 20.0, bottom: 30.0),
-                                    child: Text(
-                                        AppLocalization.of(context)
-                                            .getTranslatedValue("patientInfo")
-                                            .toString(),
+                                    child: Text("Patient Information",
                                         style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold))),
@@ -144,9 +151,7 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                     padding: EdgeInsets.all(20),
                                     child: InputDecorator(
                                         decoration: const InputDecoration(
-                                            border: OutlineInputBorder(),
-                                            filled: true,
-                                            fillColor: Colors.white),
+                                            border: OutlineInputBorder()),
                                         child: DropdownButtonHideUnderline(
                                             child: DropdownButton<dynamic>(
                                                 value: selectedPatient,
@@ -163,24 +168,19 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                     alignment: Alignment.topLeft,
                                     padding: EdgeInsets.only(
                                         left: 30.0, top: 10.0, bottom: 30.0),
-                                    child: Text(
-                                        AppLocalization.of(context)
-                                            .getTranslatedValue("medication")
-                                            .toString(),
+                                    child: Text("Medications",
                                         style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold))),
                                 Container(
                                     padding:
                                         EdgeInsets.only(left: 20.0, top: 10.0),
-                                    child: Row(children: [
+                                    child: Row(children: const [
                                       Expanded(
                                         flex: 3,
                                         child: Center(
                                             child: Text(
-                                          AppLocalization.of(context)
-                                              .getTranslatedValue("mName")
-                                              .toString(),
+                                          "Medicine Name",
                                           style: TextStyle(fontSize: 16),
                                         )),
                                       ),
@@ -188,9 +188,7 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                         flex: 2,
                                         child: Center(
                                             child: Text(
-                                          AppLocalization.of(context)
-                                              .getTranslatedValue("quantity")
-                                              .toString(),
+                                          "Quantity",
                                           style: TextStyle(fontSize: 16),
                                         )),
                                       ),
@@ -198,30 +196,26 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    Form(
-                                        key: _formKey,
-                                        child: ListView.builder(
-                                            scrollDirection: Axis.vertical,
-                                            shrinkWrap: true,
-                                            key: UniqueKey(),
-                                            itemCount: cart.length,
-                                            itemBuilder:
-                                                (BuildContext ctxt, int index) {
-                                              return CartWidget(
-                                                  cart: cart,
-                                                  index: index,
-                                                  callback: refresh,
-                                                  items: items);
-                                            })),
+                                    ListView.builder(
+                                        scrollDirection: Axis.vertical,
+                                        shrinkWrap: true,
+                                        key: UniqueKey(),
+                                        itemCount: cart.length,
+                                        itemBuilder:
+                                            (BuildContext ctxt, int index) {
+                                          return CartWidget(
+                                              cart: cart,
+                                              index: index,
+                                              callback: refresh,
+                                              items: items);
+                                        }),
                                     Container(
                                         margin: const EdgeInsets.fromLTRB(
                                             0, 20.0, 30.0, 0),
                                         child: TextButton.icon(
                                           icon: Icon(Icons.add),
                                           label: Text(
-                                            AppLocalization.of(context)
-                                                .getTranslatedValue("addRow")
-                                                .toString(),
+                                            'Add Row',
                                           ),
                                           onPressed: isButtonActive
                                               ? () {
@@ -246,22 +240,11 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                              AppLocalization.of(context)
-                                                  .getTranslatedValue(
-                                                      "description")
-                                                  .toString(),
+                                          Text("Description",
                                               style: TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.bold)),
-                                          SizedBox(
-                                            height: 15.0,
-                                          ),
                                           TextField(
-                                            decoration: InputDecoration(
-                                                filled: true,
-                                                fillColor: Colors.white),
-                                            autofocus: false,
                                             keyboardType:
                                                 TextInputType.multiline,
                                             maxLength: null,
@@ -269,97 +252,75 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                             onChanged: (value) =>
                                                 description = value,
                                           ),
-                                          SizedBox(
-                                            height: 100.0,
-                                          ),
                                         ])),
                                 Center(
-                                  child: ElevatedButton(
-                                      child: Text(
-                                        AppLocalization.of(context)
-                                            .getTranslatedValue("ccc")
-                                            .toString(),
-                                      ),
-                                      onPressed: isButtonActive
-                                          ? () async {
-                                              FocusScope.of(context)
-                                                  .requestFocus(FocusNode());
-                                              if (_formKey.currentState!
-                                                  .validate()) {
-                                                if (cart.isNotEmpty) {
-                                                  for (int i = 0;
-                                                      i < cart.length;
-                                                      i++) {
-                                                    if (int.parse(cart[i]
-                                                            .quantity
-                                                            .toString()) >
-                                                        int.parse(cart[i]
-                                                            .itemStock
-                                                            .toString())) {
-                                                      error = true;
-                                                    }
-                                                  }
-
-                                                  if (!error) {
-                                                    for (int i = 0;
-                                                        i < cart.length;
-                                                        i++) {
-                                                      medName.add(cart[i]
-                                                              .itemName! +
+                                    child: ElevatedButton(
+                                        child: Text("Confirm Check Up"),
+                                        onPressed: isButtonActive
+                                            ? () async {
+                                                setState(() {});
+                                                for (int i = 0;
+                                                    i < cart.length;
+                                                    i++) {
+                                                  medName.add(
+                                                      cart[i].itemName! +
                                                           " " +
                                                           cart[i].quantity!);
-                                                      medicine.add(cart[i]
-                                                              .itemID! +
-                                                          " " +
-                                                          cart[i].itemName! +
-                                                          " " +
-                                                          cart[i].quantity! +
-                                                          " " +
-                                                          cart[i].itemStock!);
-                                                      medQuantity.add(
-                                                          cart[i].quantity!);
-                                                    }
+                                                  medicine.add(cart[i].itemID! +
+                                                      " " +
+                                                      cart[i].itemName! +
+                                                      " " +
+                                                      cart[i].quantity! +
+                                                      " " +
+                                                      cart[i].itemStock!);
+                                                  medQuantity
+                                                      .add(cart[i].quantity!);
+                                                }
+                                                newProfit = newProfit + 50;
+                                                await DatabaseService(
+                                                        uid: AuthService()
+                                                            .getCurrentUID())
+                                                    .updateIncome(newProfit);
 
-                                                    _auth.updateInventory(
-                                                        medicine);
-                                                    patientIC = selectedPatient!
-                                                        .split(" ")[0];
-                                                    patientName =
-                                                        selectedPatient!
-                                                            .split(" ")[1];
+                                                _auth.updateInventory(medicine);
+                                                patientIC = selectedPatient!
+                                                    .split(" ")[0];
+                                                patientName = selectedPatient!
+                                                    .split(" ")[1];
 
-                                                    await DatabaseService(
-                                                            uid: AuthService()
-                                                                .getCurrentUID())
-                                                        .updateCheckUpList(
-                                                            patientName!,
-                                                            patientIC!,
-                                                            DateFormat(
-                                                                    'yyyy/MM/dd hh:mm a')
-                                                                .format(DateTime
-                                                                    .now())
-                                                                .toString(),
-                                                            medName,
-                                                            description!);
+                                                await DatabaseService(
+                                                        uid: AuthService()
+                                                            .getCurrentUID())
+                                                    .updateCheckUpList(
+                                                        patientName!,
+                                                        patientIC!,
+                                                        DateFormat(
+                                                                'yyyy/MM/dd hh:mm a')
+                                                            .format(
+                                                                DateTime.now())
+                                                            .toString(),
+                                                        medName,
+                                                        description!);
 
-                                                    await DatabaseService(
-                                                            uid: AuthService()
-                                                                .getCurrentUID())
-                                                        .updatePatientCheckUpList(
-                                                            patientName!,
-                                                            patientIC!,
-                                                            DateFormat(
-                                                                    'yyyy/MM/dd hh:mm a')
-                                                                .format(DateTime
-                                                                    .now())
-                                                                .toString(),
-                                                            medName,
-                                                            description!);
+                                                await DatabaseService(
+                                                        uid: AuthService()
+                                                            .getCurrentUID())
+                                                    .updatePatientCheckUpList(
+                                                        patientName!,
+                                                        patientIC!,
+                                                        DateFormat(
+                                                                'yyyy/MM/dd hh:mm a')
+                                                            .format(
+                                                                DateTime.now())
+                                                            .toString(),
+                                                        medName,
+                                                        description!);
 
-                                                    Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (context) => CheckUpDetail(
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            CheckUpDetail(
                                                                 patientName:
                                                                     patientName,
                                                                 patientIC:
@@ -373,133 +334,11 @@ class PatientCheckUpState extends State<PatientCheckUp> {
                                                                 medicine:
                                                                     medName,
                                                                 description:
-                                                                    description))).then(
-                                                        (value) {
-                                                      Navigator.pushReplacement(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                              builder: (BuildContext
-                                                                      context) =>
-                                                                  super
-                                                                      .widget));
-                                                    });
-                                                  } else {
-                                                    showDialog(
-                                                      barrierDismissible: true,
-                                                      context: context,
-                                                      builder: (BuildContext
-                                                          context) {
-                                                        return CupertinoAlertDialog(
-                                                          title: Text(
-                                                              AppLocalization.of(
-                                                                      context)
-                                                                  .getTranslatedValue(
-                                                                      "error")
-                                                                  .toString()),
-                                                          content: Text(AppLocalization
-                                                                  .of(context)
-                                                              .getTranslatedValue(
-                                                                  "errorStock")
-                                                              .toString()),
-                                                          actions: [
-                                                            TextButton(
-                                                              child: Text("OK"),
-                                                              onPressed: () {
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop();
-                                                              },
-                                                            ),
-                                                          ],
-                                                        );
-                                                      },
-                                                    ).then((value) {
-                                                      Navigator.pushReplacement(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                              builder: (BuildContext
-                                                                      context) =>
-                                                                  super
-                                                                      .widget));
-                                                    });
-                                                  }
-                                                } else {
-                                                  patientIC = selectedPatient!
-                                                      .split(" ")[0];
-                                                  patientName = selectedPatient!
-                                                      .split(" ")[1];
-
-                                                  Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) => CheckUpDetail(
-                                                              patientName:
-                                                                  patientName,
-                                                              patientIC:
-                                                                  patientIC,
-                                                              date: DateFormat(
-                                                                      'yyyy/MM/dd hh:mm a')
-                                                                  .format(
-                                                                      DateTime
-                                                                          .now())
-                                                                  .toString(),
-                                                              medicine: medName,
-                                                              description:
-                                                                  description))).then(
-                                                      (value) {
-                                                    Navigator.pushReplacement(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (BuildContext
-                                                                    context) =>
-                                                                super.widget));
-                                                  });
-                                                }
-                                              } else {
-                                                showDialog(
-                                                  barrierDismissible: true,
-                                                  context: context,
-                                                  builder:
-                                                      (BuildContext context) {
-                                                    return CupertinoAlertDialog(
-                                                      title: Text(AppLocalization
-                                                              .of(context)
-                                                          .getTranslatedValue(
-                                                              "error")
-                                                          .toString()),
-                                                      content: Text(
-                                                          AppLocalization.of(
-                                                                  context)
-                                                              .getTranslatedValue(
-                                                                  "errorEmpty")
-                                                              .toString()),
-                                                      actions: [
-                                                        TextButton(
-                                                          child: Text("OK"),
-                                                          onPressed: () {
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop();
-                                                          },
-                                                        ),
-                                                      ],
-                                                    );
-                                                  },
-                                                ).then((value) {
-                                                  Navigator.pushReplacement(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (BuildContext
-                                                                  context) =>
-                                                              super.widget));
-                                                });
+                                                                    description)));
                                               }
-                                            }
-                                          : null,
-                                      style: ElevatedButton.styleFrom(
-                                          primary: Colors.indigo)),
-                                ),
-                                SizedBox(height: 10.0),
+                                            : null,
+                                        style: ElevatedButton.styleFrom(
+                                            primary: Colors.amber))),
                               ],
                             ),
                           ));
@@ -510,31 +349,119 @@ class PatientCheckUpState extends State<PatientCheckUp> {
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
+              FloatingActionButton.extended(
+                  heroTag: null,
+                  elevation: 10.0,
+                  label: Text('Add Patient'),
+                  icon: Icon(Icons.add),
+                  backgroundColor: Color(0xFFE57373),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddPatientPage()));
+                  }),
               SizedBox(
                 height: 20.0,
               ),
               FloatingActionButton.extended(
                   heroTag: null,
                   elevation: 10.0,
-                  label: Text(
-                    AppLocalization.of(context)
-                        .getTranslatedValue("checkH")
-                        .toString(),
-                  ),
+                  label: Text('Check Up History'),
                   icon: Icon(Icons.list),
-                  backgroundColor: Colors.blueAccent[800],
+                  backgroundColor: Colors.orange,
                   onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => CheckUpList())).then((value) {
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) => super.widget));
-                    });
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => CheckUpList()));
                   })
             ]));
+  }
+}
+
+class Quantity extends StatefulWidget {
+  CartItem? cartItem;
+
+  Quantity({Key? key, this.cartItem}) : super(key: key);
+  @override
+  _QuantityState createState() => _QuantityState();
+}
+
+class _QuantityState extends State<Quantity> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(Quantity oldWidget) {
+    if (oldWidget.cartItem!.quantity != widget.cartItem!.quantity) {}
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderSide: BorderSide(),
+          ),
+          //fillColor: Colors.green
+        ),
+        onChanged: (String? value) {
+          setState(() {
+            widget.cartItem!.quantity = value;
+          });
+        });
+  }
+}
+
+class Medicine extends StatefulWidget {
+  List<DropdownMenuItem> items = [];
+
+  CartItem? cartItem;
+
+  Medicine({Key? key, this.cartItem, required this.items}) : super(key: key);
+  @override
+  _MedicineState createState() => _MedicineState();
+}
+
+class _MedicineState extends State<Medicine> {
+  String? _value;
+  List<DropdownMenuItem> itemsList = [];
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(Medicine oldWidget) {
+    if (oldWidget.cartItem!.itemName != widget.cartItem!.itemName) {
+      super.didUpdateWidget(oldWidget);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return InputDecorator(
+      decoration: const InputDecoration(border: OutlineInputBorder()),
+      child: DropdownButtonHideUnderline(
+          child: DropdownButton<dynamic>(
+              value: _value,
+              items: widget.items,
+              isDense: true,
+              onChanged: (value) {
+                setState(() {
+                  _value = value;
+                  widget.cartItem!.itemName = _value!.split(" ")[0];
+                  widget.cartItem!.itemID = _value!.split(" ")[1];
+                  widget.cartItem!.itemStock = _value!.split(" ")[2];
+                });
+              })),
+    );
   }
 }
 
@@ -546,26 +473,20 @@ class CartItem {
   CartItem({this.itemID, this.itemName, this.quantity, this.itemStock});
 }
 
-// ignore: must_be_immutable
 class CartWidget extends StatefulWidget {
   List<DropdownMenuItem> items;
   List<CartItem>? cart;
-  int index;
+  int? index;
   VoidCallback? callback;
 
   CartWidget(
-      {Key? key,
-      this.cart,
-      required this.index,
-      this.callback,
-      required this.items})
+      {Key? key, this.cart, this.index, this.callback, required this.items})
       : super(key: key);
   @override
   _CartWidgetState createState() => _CartWidgetState();
 }
 
 class _CartWidgetState extends State<CartWidget> {
-  String? _value1;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -574,68 +495,22 @@ class _CartWidgetState extends State<CartWidget> {
           children: [
             Expanded(
                 flex: 4,
-                child: InputDecorator(
-                  decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      filled: true,
-                      fillColor: Colors.white),
-                  child: DropdownButtonHideUnderline(
-                      child: DropdownButtonFormField<dynamic>(
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter some text';
-                            }
-                            return null;
-                          },
-                          value: _value1,
-                          items: widget.items,
-                          isDense: true,
-                          onChanged: (value) {
-                            setState(() {
-                              _value1 = value;
-                              widget.cart![widget.index].itemName =
-                                  _value1!.split(" ")[0];
-                              widget.cart![widget.index].itemID =
-                                  _value1!.split(" ")[1];
-                              widget.cart![widget.index].itemStock =
-                                  _value1!.split(" ")[2];
-                            });
-                          })),
-                )),
+                child: Medicine(
+                    cartItem: widget.cart![widget.index!],
+                    items: widget.items)),
             SizedBox(
               height: 30,
               width: 40,
             ),
             Expanded(
                 flex: 1,
-                child: TextFormField(
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter some text';
-                      }
-                      return null;
-                    },
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(),
-                      ),
-                      //fillColor: Colors.green
-                    ),
-                    onChanged: (String? value) {
-                      setState(() {
-                        widget.cart![widget.index].quantity = value;
-                      });
-                    })),
+                child: Quantity(cartItem: widget.cart![widget.index!])),
             Expanded(
               child: IconButton(
                 icon: Icon(Icons.delete),
                 onPressed: () {
                   setState(() {
-                    widget.cart!.removeAt(widget.index);
+                    widget.cart!.removeAt(widget.index!);
                     widget.callback!();
                   });
                 },

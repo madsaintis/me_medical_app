@@ -75,8 +75,8 @@ class AuthService {
   }
 
   //add item
-  Future addItem(
-      String itemName, double buyPrice, double sellPrice, int inStock) async {
+  Future addItem(String itemName, String buyPrice, String sellPrice,
+      String inStock) async {
     try {
       final User? user = _auth.currentUser;
 

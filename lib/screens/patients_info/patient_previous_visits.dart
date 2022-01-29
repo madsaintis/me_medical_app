@@ -1,5 +1,5 @@
-import 'package:me_medical_app/l10n/app_localization.dart';
 import 'package:me_medical_app/screens/checkup_pages/checkup_details.dart';
+import 'package:me_medical_app/screens/patients_info/patient_list.dart';
 import 'package:me_medical_app/services/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -34,10 +34,8 @@ class _PatientPreviousCheckUpState extends State<PatientPreviousCheckUp> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(AppLocalization.of(context)
-            .getTranslatedValue("patientPreviousVisits")
-            .toString()),
-        backgroundColor: Colors.indigo,
+        title: const Text("Patient Previous Visits"),
+        backgroundColor: Colors.teal,
         elevation: 3,
         leading: IconButton(
           icon: const Icon(
@@ -45,7 +43,8 @@ class _PatientPreviousCheckUpState extends State<PatientPreviousCheckUp> {
             color: Colors.white,
           ),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => PatientListPage()));
           },
         ),
       ),
@@ -65,33 +64,36 @@ class _PatientPreviousCheckUpState extends State<PatientPreviousCheckUp> {
                         child: Text("Patient never visits the clinic yet."),
                       );
                     }
-                    return Card(
-                      child: ListTile(
-                          title:
-                              Text(snapshot.data[index].data()["Patient Name"]),
-                          trailing: Wrap(
-                            children: [
-                              Text(snapshot.data[index]
-                                  .data()["Date"]
-                                  .toString())
-                            ],
-                          ),
-                          onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => CheckUpDetail(
-                                        patientName: snapshot.data[index]
-                                            .data()["Patient Name"],
-                                        patientIC:
-                                            snapshot.data[index].data()["IC"],
-                                        date:
-                                            snapshot.data[index].data()["Date"],
-                                        medicine: snapshot.data[index]
-                                            .data()["Medications"]
-                                            .cast<String>(),
-                                        description: snapshot.data[index]
-                                            .data()["Description"],
-                                      )))),
+                    return Container(
+                      child: Card(
+                        child: ListTile(
+                            title: Text(
+                                snapshot.data[index].data()["Patient Name"]),
+                            trailing: Wrap(
+                              children: [
+                                Text("Date: " +
+                                    snapshot.data[index]
+                                        .data()["Date"]
+                                        .toString())
+                              ],
+                            ),
+                            onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => CheckUpDetail(
+                                          patientName: snapshot.data[index]
+                                              .data()["Patient Name"],
+                                          patientIC:
+                                              snapshot.data[index].data()["IC"],
+                                          date: snapshot.data[index]
+                                              .data()["Date"],
+                                          medicine: snapshot.data[index]
+                                              .data()["Medications"]
+                                              .cast<String>(),
+                                          description: snapshot.data[index]
+                                              .data()["Description"],
+                                        )))),
+                      ),
                     );
                   });
             }

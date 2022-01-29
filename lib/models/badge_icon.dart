@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 
 class BadgeIcon extends StatelessWidget {
-  final Widget icon;
-  final int badgeCount;
-  final bool showIfZero;
-  final Color badgeColor;
-  final TextStyle badgeTextStyle;
-
-  const BadgeIcon(
+  BadgeIcon(
       {required this.icon,
       this.badgeCount = 0,
       this.showIfZero = false,
       this.badgeColor = Colors.red,
       required TextStyle badgeTextStyle})
       : badgeTextStyle = badgeTextStyle;
+  final Widget icon;
+  final int badgeCount;
+  final bool showIfZero;
+  final Color badgeColor;
+  final TextStyle badgeTextStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +26,7 @@ class BadgeIcon extends StatelessWidget {
         right: 0,
         top: 0,
         child: Container(
-          padding: const EdgeInsets.all(1),
+          padding: EdgeInsets.all(1),
           decoration: BoxDecoration(
             color: badgeColor,
             borderRadius: BorderRadius.circular(7.5),

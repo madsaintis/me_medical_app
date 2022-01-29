@@ -1,5 +1,5 @@
-import 'package:me_medical_app/l10n/app_localization.dart';
 import 'package:me_medical_app/screens/checkup_pages/checkup_details.dart';
+import 'package:me_medical_app/screens/checkup_pages/patient_checkup.dart';
 import 'package:me_medical_app/services/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -29,10 +29,8 @@ class _CheckUpListState extends State<CheckUpList> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(AppLocalization.of(context)
-            .getTranslatedValue("checkUpList")
-            .toString()),
-        backgroundColor: Colors.indigo,
+        title: const Text("Check Up List"),
+        backgroundColor: Colors.teal,
         elevation: 3,
         leading: IconButton(
           icon: const Icon(
@@ -40,7 +38,8 @@ class _CheckUpListState extends State<CheckUpList> {
             color: Colors.white,
           ),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => PatientCheckUp()));
           },
         ),
       ),
